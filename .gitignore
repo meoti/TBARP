@@ -1,0 +1,7 @@
+bin
+obj
+x64
+x86
+*.resx
+*.csproj
+Form1.Designer.cs
