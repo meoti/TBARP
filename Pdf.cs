@@ -26,6 +26,7 @@ namespace InvoiceAnalyserMainUI
         bool perUnit;
         bool tvaInclu;
         private Regex regex = new Regex(@"[ ]{2,}", RegexOptions.None);
+        internal bool provider_Exist;
 
         public Dictionary<string, string> info { get; private set; }
 
@@ -63,20 +64,22 @@ namespace InvoiceAnalyserMainUI
                 }
                 else
                 {
-                    foreach (string line in content)
+                    foreach (string line in content.Where(line => !string.IsNullOrWhiteSpace(line.Trim())))
                     {
-                        foreach (string word in line.Split(' '))
+                        foreach (string word in line.Split(new char[] {' ','-' }))
                         {
                             if (appSettings.AllKeys.Contains(word.ToLowerInvariant()))// make frequency
                             {
-                                if (!dict.ContainsKey(word))
-                                {
-                                    dict.Add(word, 1);
-                                }
-                                else
-                                {
-                                    dict[word]++;
-                                }
+                                //if (!dict.ContainsKey(word))
+                                //{
+                                //    dict.Add(word, 1);
+                                //}
+                                //else
+                                //{
+                                //    dict[word]++;
+                                //}
+                                return word;
+
                             }
                         }
 
@@ -91,7 +94,7 @@ namespace InvoiceAnalyserMainUI
             // if all providers is none handle(case provider not found)
             
                 if(dict.Count > 0)
-                return dict.OrderBy(x => x.Value).First().Key;
+                return dict.OrderBy(x => x.Value).Last().Key;
             else
             {
                 return " ";
@@ -105,15 +108,16 @@ namespace InvoiceAnalyserMainUI
             try
             {
                 var appSettings = ConfigurationManager.AppSettings;
-
+             
                 if (string.IsNullOrEmpty(provider.Trim()))
                 {
                     Console.WriteLine("Provider Not found");
+                    provider_Exist = false;
                     //To do :show message box
                 }
                 else
                 {
-
+                    provider_Exist = true;
                     // split list by tabs for each setting value( split pos by ,)
                     Console.WriteLine("Key: {0} Value: {1}", provider, appSettings[provider]);
                     string[] prefs = appSettings[provider].Split('\t');
@@ -132,347 +136,379 @@ namespace InvoiceAnalyserMainUI
                     }
                     perUnit = bool.Parse(prefs[6]);
                     tvaInclu = bool.Parse(prefs[7]);
-
-
                 }
             }
             catch (ConfigurationErrorsException)
             {
                 Console.WriteLine("Error reading app settings");
+                provider_Exist = false;
             }
         }
 
+
+        static string GetUntil(string text, string stopAt = "0")
+        {
+            int charLocation = text.IndexOf(stopAt, StringComparison.Ordinal);
+
+            if (charLocation > 0)
+            {
+                return text.Substring(charLocation);
+            }
+            return text;
+        }
         // process contents using prefs
         public void ProcessContent(String[] content)// extracted info will be saved in a collection(dictionary in UI cs)
         {
-            // process content will always take the string content(from the ocr getcontent or the texarea) process the spaces and dashes 
-            // and update the contents array as well as the text area
-            System.Windows.Forms.Application.UseWaitCursor = true;
-            Console.WriteLine("processing");
-            bool hfound = false;
-            bool ffound = false;
-            bool check = true;
-            bool checkdate = true;
-            bool checkorder = true;
-            bool checkserial = false;
-            string serial = "";
-            string line_p = null;
-            string name = "";
-            string quantity = "";
-            string item_number = "";
-            string price_ht = " ";
-            double price_tv = 0;
-            string tv = "8";
-            bool n = false;
-            bool p = false;
-
-            StringBuilder infoItem = new StringBuilder();
-
-            foreach (string line in content)
+            if (provider_Exist)
             {
-                if (checkdate)
-                {
-                    string word = Process.Next_word_after_keyword(line, date);
-                    //Console.WriteLine(word);
-                    if (!string.IsNullOrEmpty(word))
-                    {
-                        info["factureDate"] = word;
-                        checkdate = false;
-                    }
-                }
 
-                if (checkorder)
+                // process content will always take the string content(from the ocr getcontent or the texarea) process the spaces and dashes 
+                // and update the contents array as well as the text area
+                System.Windows.Forms.Application.UseWaitCursor = true;
+                Console.WriteLine("processing");
+                bool hfound = false;
+                bool ffound = false;
+                bool check = true;
+                bool checkdate = true;
+                bool checkorder = true;
+                bool checkserial = false;
+                string serial = "";
+                string line_p = null;
+                string name = "";
+                string quantity = "";
+                string item_number = "";
+                string price_ht = " ";
+                double price_tv = 0;
+                string tv = "8";
+                bool n = false;
+                bool p = false;
+
+                StringBuilder infoItem = new StringBuilder();
+
+                foreach (string line in content)
                 {
-                    string word = Process.Next_word_after_keyword(line, commandNumber);
-                    // Console.WriteLine(word);
-                    if (!string.IsNullOrEmpty(word))
+                    if (!string.IsNullOrWhiteSpace(line.Trim()))
                     {
-                        if (!word.Any(char.IsDigit))
+                        if (checkdate)
                         {
-                            n = true;
-                            continue;
-
-                        }
-
-                        info["commande"] = word;
-                        checkorder = false;
-                    }
-                    if (n)
-                    {
-                        info["commande"] = line.Split(' ')[0];
-                        checkorder = false;
-                    }
-                }
-
-
-                //get bvr - found
-                if (check) // stop checking for the bvr once found
-                {
-                    Regex rex = new Regex(@"[ ]{3,}", RegexOptions.None);
-                    string line_ = rex.Replace(line, "\t");
-                    string[] words = line_.Split('\t');
-                    foreach (string word in words)
-                    {
-                        if (word.StartsWith("0") && word.Contains(">") && word.EndsWith(">"))
-                        {
-                            info["BVR"] = word;
-                            check = false;
-                            break;
-                        }
-                    }
-                }
-                //header section
-                if (!hfound && Process.isheaader(line, headerKeyword))
-                {
-                    hfound = true;
-                    Console.WriteLine("<table header> \n" + line);
-                    continue;
-                }
-                // footer section
-                if (Process.isfooter(line, fotterKeyword))
-                {
-                    ffound = true;
-                    Console.WriteLine("<table end found> \n" + line);
-                    if (!string.IsNullOrEmpty(name))
-                        infoItem.AppendLine(name + "|" + quantity + "|" + item_number + "|" + price_ht + "|" +
-                                string.Format("{0:0.00}", price_tv) + "|" + tv + "|" + serial);
-                    checkserial = false;
-                }
-
-                line_p = null;
-                //item section
-                if (!headerKeyword.Equals("None", StringComparison.OrdinalIgnoreCase))
-                {
-                    //try
-                    //{
-                    if (hfound && !ffound)
-                    {
-                        line_p = line.Replace("  . ", " ");
-                        line_p = regex.Replace(line_p, "\t");
-
-                        // get positions from pos and adjute pos in line
-
-                        if (pos != null && line_p.Split('\t').Length >= itemCount - pos.Length)
-                        {
-                            Array.Sort(pos);
-                            //insert pos after pos number
-                            string[] terms = line_p.Split('\t');
-                            foreach (int ipos in pos)
+                            string word = Process.Next_word_after_keyword(line, date);
+                            //Console.WriteLine(word);
+                            if (!string.IsNullOrEmpty(word))
                             {
-                                terms = line_p.Split('\t');
-                                if (terms[ipos - 1].Trim().IndexOf(" ") != -1)
-                                    terms[ipos - 1] = terms[ipos - 1].Insert(terms[ipos - 1].Trim().IndexOf(" "), " \t");
-                                Console.WriteLine(terms[ipos - 1]);
-                                line_p = string.Join("\t", terms);
+                                info["factureDate"] = word;
+                                checkdate = false;
                             }
-                            line_p = string.Join("\t", terms);
                         }
-                        //find the item line and item elements
-                        line_p = regex.Replace(line_p, "\t");
 
-                        if (line_p.Split('\t').Length >= itemCount) // item section start
+                        if (checkorder)
                         {
-                            Console.WriteLine("Itemline - {0}", line_p);
-                            checkserial = false;
+                            string word = Process.Next_word_after_keyword(line, commandNumber);
+                            // Console.WriteLine(word);
+                            if (!string.IsNullOrEmpty(word))
+                            {
+                                if (!word.Any(char.IsDigit))
+                                {
+                                    n = true;
+                                    continue;
+
+                                }
+
+                                info["commande"] = word;
+                                checkorder = false;
+                            }
+                            if (n)
+                            {
+                                info["commande"] = line.Split(' ')[0];
+                                checkorder = false;
+                            }
+                        }
+
+
+                        //get bvr - found
+                        if (check) // stop checking for the bvr once found
+                        {
+                            Regex rex = new Regex(@"[ ]{3,}", RegexOptions.None);
+                            string line_ = rex.Replace(line, "\t");
+                            string[] words = line_.Split('\t');
+                            foreach (string word in words)
+                            {
+                                string w = GetUntil(word.Trim(), "0");
+                                if (w.StartsWith("0") && w.Contains(">") && w.EndsWith(">"))
+                                {
+                                    info["BVR"] = w;
+                                    check = false;
+                                    break;
+                                }
+                            }
+                        }
+                        //header section
+                        if (!hfound && Process.isheaader(line, headerKeyword))
+                        {
+                            hfound = true;
+                            Console.WriteLine("<table header> \n" + line);
+                            continue;
+                        }
+                        // footer section
+                        if (Process.isfooter(line, fotterKeyword))
+                        {
+                            ffound = true;
+                            Console.WriteLine("<table end found> \n" + line);
                             if (!string.IsNullOrEmpty(name))
                                 infoItem.AppendLine(name + "|" + quantity + "|" + item_number + "|" + price_ht + "|" +
-                                string.Format("{0:0.00}", price_tv) + "|" + tv + "|" + serial);
-                            name = "";
-                            quantity = "";
-                            item_number = "";
-                            price_ht = " ";
-                            serial = "";
+                                        string.Format("{0:0.00}", price_tv) + "|" + tv + "|" + serial);
+                            checkserial = false;
+                        }
 
-                            string[] items = line_p.Split('\t');
-                            if (designationColumn != -1)
+                        line_p = null;
+                        //item section
+                        if (!headerKeyword.Equals("None", StringComparison.OrdinalIgnoreCase))
+                        {
+                            //try
+                            //{
+                            if (hfound && !ffound)
                             {
-                                name = items[designationColumn - 1];
-                            }
+                                line_p = line.Replace("  . ", " ");
+                                line_p = regex.Replace(line_p, "\t");
 
-                            if (quantityColumn != -1)
-                            {
-                                quantity = items[quantityColumn - 1];
-                                quantity = Regex.Replace(quantity, "[^0-9.]", "");
-                            }
+                                // get positions from pos and adjute pos in line
 
-                            if (itemNumberColumn != -1)
-                            {
-                                item_number = items[itemNumberColumn - 1];
-                            }
-
-                            if (itemCount != -1)
-                            {
-                                price_ht = items[itemCount - 1];
-                            }
-
-                            double result;
-                            double price = 0;
-                            if (!double.TryParse(price_ht, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
-                            {
-                                for (int i = 1; i < items.Length; i++)
+                                if (pos != null && line_p.Split('\t').Length >= itemCount - pos.Length)
                                 {
-                                    if ((i != designationColumn - 1 || i != quantityColumn - 1 || i != itemNumberColumn - 1) &&
-                                        double.TryParse(items[i], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
+                                    Array.Sort(pos);
+                                    //insert pos after pos number
+                                    string[] terms = line_p.Split('\t');
+                                    foreach (int ipos in pos)
                                     {
-                                        if (result > price)
+                                        terms = line_p.Split('\t');
+                                        if (terms[ipos - 1].Trim().IndexOf(" ") != -1)
+                                            terms[ipos - 1] = terms[ipos - 1].Insert(terms[ipos - 1].Trim().IndexOf(" "), " \t");
+                                        Console.WriteLine(terms[ipos - 1]);
+                                        line_p = string.Join("\t", terms);
+                                    }
+                                    line_p = string.Join("\t", terms);
+                                }
+                                //find the item line and item elements
+                                line_p = regex.Replace(line_p, "\t");
+
+                                if (line_p.Split('\t').Length >= itemCount) // item section start
+                                {
+                                    try
+                                    {
+                                        Console.WriteLine("Itemline - {0}", line_p);
+                                        checkserial = false;
+                                        if (!string.IsNullOrEmpty(name))
+                                            infoItem.AppendLine(name + "|" + quantity + "|" + item_number + "|" + price_ht + "|" +
+                                            string.Format("{0:0.00}", price_tv) + "|" + tv + "|" + serial);
+                                        name = "";
+                                        quantity = "";
+                                        item_number = "";
+                                        price_ht = " ";
+                                        serial = "";
+
+                                        string[] items = line_p.Split('\t');
+                                        if (designationColumn != -1)
                                         {
-                                            price_ht = items[i];
+                                            name = items[designationColumn - 1];
+                                        }
+
+                                        if (quantityColumn != -1)
+                                        {
+                                            quantity = items[quantityColumn - 1];
+                                            quantity = Regex.Replace(quantity, "[^0-9.]", "");
+                                        }
+
+                                        if (itemNumberColumn != -1)
+                                        {
+                                            item_number = items[itemNumberColumn - 1];
+                                        }
+
+                                        if (itemCount != -1)
+                                        {
+                                            price_ht = items[itemCount - 1];
+                                        }
+                                        // logic for getting maximum double value in item line for price ht
+                                        double result;
+                                        double price = 0;
+                                        if (!double.TryParse(price_ht, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
+                                        {
+                                            for (int i = 1; i < items.Length; i++)
+                                            {
+                                                if ((i != designationColumn - 1 || i != quantityColumn - 1 || i != itemNumberColumn - 1) &&
+                                                    double.TryParse(items[i], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
+                                                {
+                                                    if (result > price)
+                                                    {
+                                                        price_ht = items[i];
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                        // if last item is not double, so strip 
+
+                                        // get price(based on qunatity and rabais)
+                                        if (perUnit)
+                                        {
+                                            int rab_col = itemCount - 2;
+                                            if ((rab_col != designationColumn - 1 || rab_col != quantityColumn - 1) || rab_col != itemNumberColumn - 1)
+                                            {
+                                                double rabais = 0;
+                                                try
+                                                {
+                                                    rabais = double.Parse(items[rab_col]);
+                                                    if (rabais != double.Parse(price_ht) && rabais < 100)
+                                                    {
+                                                        Console.WriteLine(rabais);
+                                                        double prix = (double.Parse(price_ht) - (rabais / 100 * double.Parse(price_ht))) * int.Parse(quantity);
+
+                                                        prix = Math.Round(prix * 20) / 20;
+
+                                                        price_ht = string.Format("{0:0.00}", prix);
+                                                    }
+                                                }
+                                                catch (Exception)
+                                                {
+
+                                                }
+
+                                            }
+                                        }
+                                        double tva = double.Parse(tv) / 100 * double.Parse(price_ht);
+                                        tva = Math.Round(tva * 20) / 20;
+                                        //get price with tax or without
+                                        if (tvaInclu)
+                                        {
+                                            price_tv = double.Parse(price_ht);
+                                            price_ht = string.Format("{0:0.00}", double.Parse(price_ht) - tva);
+                                        }
+                                        else
+                                        {
+                                            price_tv = double.Parse(price_ht) + tva;
                                         }
                                     }
-                                }
-
-                            }
-                            // if last item is not double, so strip 
-
-                            // get price(based on qunatity and rabais)
-                            if (perUnit)
-                            {
-                                int rab_col = itemCount - 2;
-                                if ((rab_col != designationColumn - 1 || rab_col != quantityColumn - 1) || rab_col != itemNumberColumn - 1)
-                                {
-                                    double rabais = double.Parse(items[rab_col]);
-                                    if (rabais != double.Parse(price_ht) && rabais < 100)
+                                    catch (Exception)
                                     {
-                                        Console.WriteLine(rabais);
-                                        double prix = (double.Parse(price_ht) - (rabais / 100 * double.Parse(price_ht))) * int.Parse(quantity);
+                                        price_ht = "0";
+                                        price_tv = 0;
+                                        
+                                    }
 
-                                        prix = Math.Round(prix * 20) / 20;
+                                }
+                                // find serial number if switch is on
+                                // if (serialSwitch.Value)
+                                //{ problem with hard coded keywords
 
-                                        price_ht = string.Format("{0:0.00}", prix);
+
+
+                                //end of item line
+                                if (line.Contains("Seriennr.") | line.Contains("Numéro de série") | line.Contains("N.DE SERIE"))
+                                {
+                                    checkserial = true;
+                                }
+                                if (checkserial)
+                                {
+                                    string s = "";
+                                    int idxs = line.IndexOf("Seriennr.");
+                                    int idxn = line.IndexOf("Numéro de série");
+                                    int idxN = line.IndexOf("N.DE SERIE");
+                                    if (idxn > -1)
+                                    {
+                                        s = line.Substring(idxn + 15).Trim(' ', ':').Split(' ')[0];
+                                        if (string.IsNullOrEmpty(s) || !s.Any(char.IsDigit))
+                                            continue;
+                                    }
+                                    else if (idxs > -1)
+                                    {
+                                        s = line.Substring(idxs + 10).Trim(' ', ':').Split(' ')[0];
+                                        if (string.IsNullOrEmpty(s) || !s.Any(char.IsDigit))
+                                            continue;
+                                    }
+                                    else if (idxN > -1)
+                                    {
+                                        s = line.Substring(idxN + 10).Trim(' ', ':').Split(' ')[0];
+                                        if (string.IsNullOrEmpty(s) || !s.Any(char.IsDigit))
+                                            continue;
+                                    }
+                                    //problem on how to exit form non serial number line which are not items
+                                    if ((string.IsNullOrEmpty(s) || !s.Any(char.IsDigit))) // the next word is probably not the serial so is beneath
+                                    {
+                                        Console.WriteLine("check for serial on {0}", line);
+                                        serial += line.Split(' ')[0] + ";";
+                                    }
+                                    else
+                                        serial += s;
+                                    //  }
+                                }
+                            }
+                        }
+                        // if fotter found then look for total prix, default look for last item in line with toal chf
+                        if (ffound)
+                        {
+                            double result;
+                            //line having TVA
+                            if (line.Contains("TVA"))
+                            {
+                                //if it contains 8 it's 8
+                                if (line.Contains("8"))
+                                    tv = "8.00";
+                                //if not substring after tva , and strip all letters and take number
+                                else
+                                {
+                                    tv = line.Substring(line.IndexOf("TVA") + 3);
+                                    tv = Regex.Replace(tv, "[^0-9.]", "");
+                                }
+                            }
+                            //line having total after fotter
+                            if (line.ToLowerInvariant().Contains("total"))
+                            {
+                                string total = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Last();
+                                if (string.IsNullOrEmpty(total) || !total.Any(char.IsDigit))
+                                {
+                                    p = true;
+                                    continue;
+                                }
+                                else
+                                {
+                                    total = total.Replace("-", string.Empty).Replace("_", string.Empty).Replace("—", string.Empty);
+                                    if (double.TryParse(total, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
+                                    {
+                                        p = false;
+                                        if (!total.Contains('.'))
+                                            total = total.Insert(total.Length - 2, ".");
+                                        info["prix"] = total;
                                     }
                                 }
-                            }
-                            double tva = double.Parse(tv) / 100 * double.Parse(price_ht);
-                            tva = Math.Round(tva * 20) / 20;
-                            //get price with tax or without
-                            if (tvaInclu)
-                            {
-                                price_tv = double.Parse(price_ht);
-                                price_ht = string.Format("{0:0.00}", double.Parse(price_ht) - tva);
+
                             }
                             else
                             {
-                                price_tv = double.Parse(price_ht) + tva;
+                                if (p)
+                                {
+                                    string total = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Last();
+                                    Console.WriteLine(total);
+                                    total = total.Replace('-', ',').Replace('_', ',').Replace('—', ',');
+                                    if (double.TryParse(total, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
+                                    {
+                                        p = false;
+                                        if (!total.Contains('.') | total.Contains(','))
+                                            total = total.Insert(total.Length - 2, ".");
+                                        info["prix"] = total;
+                                    }
+
+                                }
                             }
 
                         }
-                        // find serial number if switch is on
-                        // if (serialSwitch.Value)
-                        //{ problem with hard coded keywords
-                        if (line.Contains("Seriennr.") | line.Contains("Numéro de série") | line.Contains("N.DE SERIE"))
-                        {
-                            checkserial = true;
-                        }
-                        if (checkserial)
-                        {
-                            string s = "";
-                            int idxs = line.IndexOf("Seriennr.");
-                            int idxn = line.IndexOf("Numéro de série");
-                            int idxN = line.IndexOf("N.DE SERIE");
-                            if (idxn > -1)
-                            {
-                                s = line.Substring(idxn + 15).Trim(' ', ':').Split(' ')[0];
-                                if (string.IsNullOrEmpty(s) || !s.Any(char.IsDigit))
-                                    continue;
-                            }
-                            else if (idxs > -1)
-                            {
-                                s = line.Substring(idxs + 10).Trim(' ', ':').Split(' ')[0];
-                                if (string.IsNullOrEmpty(s) || !s.Any(char.IsDigit))
-                                    continue;
-                            }
-                            else if (idxN > -1)
-                            {
-                                s = line.Substring(idxN + 10).Trim(' ', ':').Split(' ')[0];
-                                if (string.IsNullOrEmpty(s) || !s.Any(char.IsDigit))
-                                    continue;
-                            }
-                            //problem on how to exit form non serial number line which are not items
-                            if ((string.IsNullOrEmpty(s) || !s.Any(char.IsDigit))) // the next word is probably not the serial so is beneath
-                            {
-                                Console.WriteLine("check for serial on {0}", line);
-                                serial += line.Split(' ')[0] + ";";
-                            }
-                            else
-                                serial += s;
-                            //  }
-                        }
-                        //make item ine
-
                     }
-                    //}
-                    /*catch (Exception ex)
-                    {
-                        //Trace.TraceError(ex.ToString());
-                        Console.WriteLine("Unexpected Error: \n" + ex.Message);
-                    }*/
                 }
-                // if fotter found then look for total prix, default look for last item in line with toal chf
-                if (ffound)
-                {
-                    double result;
-                    //line having TVA
-                    if (line.Contains("TVA"))
-                    {
-                        //if it contains 8 it 8
-                        if (line.Contains("8"))
-                            tv = "8.00";
-                        //if not substring after tva , and strip all letters and take number
-                        else
-                        {
-                            tv = line.Substring(line.IndexOf("TVA") + 3);
-                            tv = Regex.Replace(tv, "[^0-9.]", "");
-
-                        }
-                    }
-                    //line having total after fotter
-                    if (line.ToLowerInvariant().Contains("total"))
-                    {
-                        string total = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Last();
-                        if (string.IsNullOrEmpty(total) || !total.Any(char.IsDigit))
-                        {
-                            p = true;
-                            continue;
-                        }
-                        else
-                        {
-                            total = total.Replace("-", string.Empty).Replace("_", string.Empty).Replace("—", string.Empty);
-                            if (double.TryParse(total, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
-                            {
-                                p = false;
-                                if (!total.Contains('.'))
-                                    total = total.Insert(total.Length - 2, ".");
-                                info["prix"] = total;
-                            }
-                        }
-
-                    }
-                    else
-                    {
-                        if (p)
-                        {
-                            string total = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Last();
-                            Console.WriteLine(total);
-                            total = total.Replace('-', ',').Replace('_', ',').Replace('—', ',');
-                            if (double.TryParse(total, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
-                            {
-                                p = false;
-                                if (!total.Contains('.') | total.Contains(','))
-                                    total = total.Insert(total.Length - 2, ".");
-                                info["prix"] = total;
-                            }
-
-                        }
-                    }
-
-
-                }
+                info["item"] = infoItem.ToString();                
+                System.Windows.Forms.Application.UseWaitCursor = false;
             }
-            info["item"] = infoItem.ToString();
-            Console.WriteLine("done");
-            System.Windows.Forms.Application.UseWaitCursor = false;
+            else
+            {
+                Console.WriteLine("Provider not determined");
+            }
         }
-
         // for each invoice present to the UI.
         // get short invoice name,(use as key), make buttons dynamically and add events
     }
