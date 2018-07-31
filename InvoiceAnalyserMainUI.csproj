@@ -126,6 +126,22 @@
     <None Include="Resources\selected.png" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="data\2.JPG.txt" />
+    <Content Include="data\banner3.2l.png.txt" />
+    <Content Include="data\banner3.2t.png.txt" />
+    <Content Include="data\fanart.jpg.txt" />
+    <Content Include="data\gg.png.txt" />
+    <Content Include="data\gg2.2.png.txt" />
+    <Content Include="data\gg3m.png.txt" />
+    <Content Include="data\gg4m.png.txt" />
+    <Content Include="data\ggb.png.txt" />
+    <Content Include="data\gglb.png.txt" />
+    <Content Include="data\ggvl.png.txt" />
+    <Content Include="data\gs3.png.txt" />
+    <Content Include="data\linkedb.png.txt" />
+    <Content Include="data\linkedin.png.txt" />
+    <Content Include="data\linked_h.png.txt" />
+    <Content Include="data\Xing.png.txt" />
     <Content Include="x64\liblept172.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
