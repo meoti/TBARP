@@ -92,14 +92,13 @@ namespace InvoiceAnalyserMainUI
                 using (var engine = new TesseractEngine(@"./tessdata", "fra", EngineMode.TesseractOnly))
                 {
                     engine.SetVariable("preserve_interword_spaces", "1");
-                    engine.SetVariable("textord_dump_table_images", "0");
-                    engine.SetVariable("textord_tablefind_recognize_tables", "0");
+                    //engine.SetVariable("textord_dump_table_images", "1");
+                    //engine.SetVariable("textord_tablefind_recognize_tables", "1");
 
                     // Set the Page Segmentation mode
                     //engine.SetVariable("textord_tabfind_show_columns", "1");
                     //engine.SetVariable("load_system_dawg", "0");
-                    //engine.SetVariable("textord_dump_table_images", "1");
-                    //engine.SetVariable("textord_tablefind_recognize_tables", "1");
+                    
 
                     foreach (string ImagePath in imgPaths)
                     {
@@ -144,7 +143,7 @@ namespace InvoiceAnalyserMainUI
         {
             List<string> Images = new List<string>();
             MagickReadSettings settings = new MagickReadSettings();
-            settings.Density = new Density(700);
+            settings.Density = new Density(730);
 
             using (MagickImageCollection images = new MagickImageCollection())
             {
@@ -156,9 +155,10 @@ namespace InvoiceAnalyserMainUI
                 {
                     // Write page to file that contains the page number
                     image.Format = MagickFormat.Jpg;
-                    image.Quality = 100;
-                    //image.Threshold(new Percentage(50));
+                    //image.Quality = 100;
+                    image.AutoThreshold(AutoThresholdMethod.OTSU);
                     //image.Depth = 8;
+                    //image.Deskew(new Percentage(60));
                     image.Write(pdfpath + "_Page" + page + ".jpg");
                     Images.Add(pdfpath + "_Page" + page + ".jpg");
                     page++;

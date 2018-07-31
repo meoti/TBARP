@@ -785,7 +785,8 @@ namespace InvoiceAnalyserMainUI
 
             button.selected = true;
             button.Iconimage_right = global::banifu_forms_main_ui.Properties.Resources.selected;           
-            
+            bunifuCustomDataGrid2.Rows.Clear();
+
 
             // get contents and process
             string[] delim = { Environment.NewLine, "\n" };
@@ -890,6 +891,8 @@ namespace InvoiceAnalyserMainUI
             // th.Start();
 
             await WorkAsync();
+            this.circleProgressbar.Value = 100;
+            Thread.Sleep(100);
             animatepanel.Visible = false;
             homePanel.Visible = false;
 
@@ -948,6 +951,10 @@ namespace InvoiceAnalyserMainUI
                 if(i + 1 - _files.Count > 0)
                 labelf.Text = " Reading Content " + (i+1 -_files.Count) + " of " + _files.Count;                
                 //animatepanel.Refresh();
+                if(i+1 == _files.Count)
+                {
+                    this.circleProgressbar.Value = 96;
+                }
             });
         }
 
@@ -971,7 +978,7 @@ namespace InvoiceAnalyserMainUI
 
         private void DropBox_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
-            if (e.KeyCode == Keys.Delete)
+            if (e.KeyCode == Keys.Delete && DropBox.SelectedIndex >= 0)
             {
                 _files.RemoveAt(DropBox.SelectedIndex);
                 DropBox.Items.RemoveAt(DropBox.SelectedIndex);

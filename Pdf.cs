@@ -12,7 +12,6 @@ namespace InvoiceAnalyserMainUI
     {
 
         //make contructor to handle init
-        private Dictionary<string, int> dict = new Dictionary<string, int>();
         //private Dictionary<string, string> info ;
         int designationColumn;
         int quantityColumn;
@@ -70,14 +69,7 @@ namespace InvoiceAnalyserMainUI
                         {
                             if (appSettings.AllKeys.Contains(word.ToLowerInvariant()))// make frequency
                             {
-                                //if (!dict.ContainsKey(word))
-                                //{
-                                //    dict.Add(word, 1);
-                                //}
-                                //else
-                                //{
-                                //    dict[word]++;
-                                //}
+                                
                                 return word;
 
                             }
@@ -90,15 +82,8 @@ namespace InvoiceAnalyserMainUI
             {
                 Console.WriteLine("Error reading app settings");
             }
-            // key provider of max freq.
-            // if all providers is none handle(case provider not found)
-            
-                if(dict.Count > 0)
-                return dict.OrderBy(x => x.Value).Last().Key;
-            else
-            {
-                return " ";
-            }
+           
+                return "";           
             
         }
 
@@ -111,7 +96,7 @@ namespace InvoiceAnalyserMainUI
              
                 if (string.IsNullOrEmpty(provider.Trim()))
                 {
-                    Console.WriteLine("Provider Not found");
+                    Console.WriteLine("Configuration is null");
                     provider_Exist = false;
                     //To do :show message box
                 }
@@ -180,9 +165,9 @@ namespace InvoiceAnalyserMainUI
                 string price_ht = " ";
                 double price_tv = 0;
                 string tv = "8";
-                bool n = false;
+                bool look_under = false;
                 bool p = false;
-
+                
                 StringBuilder infoItem = new StringBuilder();
 
                 foreach (string line in content)
@@ -202,24 +187,33 @@ namespace InvoiceAnalyserMainUI
 
                         if (checkorder)
                         {
-                            string word = Process.Next_word_after_keyword(line, commandNumber);
-                            // Console.WriteLine(word);
-                            if (!string.IsNullOrEmpty(word))
+                            if (!look_under)
                             {
-                                if (!word.Any(char.IsDigit))
+                                string word = Process.Next_word_after_keyword(line, commandNumber);
+                                // Console.WriteLine(word);
+                                if (!string.IsNullOrWhiteSpace(word))
                                 {
-                                    n = true;
-                                    continue;
+                                    if (!word.Any(char.IsDigit))
+                                    {
+                                        look_under = true;
+                                        continue;
 
-                                }
+                                    }
 
-                                info["commande"] = word;
-                                checkorder = false;
+                                    info["commande"] = word;
+                                    checkorder = false;
+                                } 
                             }
-                            if (n)
+                            if (look_under) //next lines
                             {
-                                info["commande"] = line.Split(' ')[0];
-                                checkorder = false;
+                                //first words
+                                string firs_word = line.Split(' ')[0];
+                                if (firs_word.Any(char.IsDigit))
+                                {
+                                    info["commande"] = firs_word;
+                                    checkorder = false;
+                                }
+                                
                             }
                         }
 
@@ -324,7 +318,7 @@ namespace InvoiceAnalyserMainUI
 
                                         if (itemCount != -1)
                                         {
-                                            price_ht = items[itemCount - 1];
+                                            price_ht = items[itemCount - 1].Replace(',', '.');
                                         }
                                         // logic for getting maximum double value in item line for price ht
                                         double result;
@@ -407,36 +401,38 @@ namespace InvoiceAnalyserMainUI
                                 }
                                 if (checkserial)
                                 {
-                                    string s = "";
+                                    string serial_key_idx = "";
                                     int idxs = line.IndexOf("Seriennr.");
                                     int idxn = line.IndexOf("Numéro de série");
                                     int idxN = line.IndexOf("N.DE SERIE");
                                     if (idxn > -1)
                                     {
-                                        s = line.Substring(idxn + 15).Trim(' ', ':').Split(' ')[0];
-                                        if (string.IsNullOrEmpty(s) || !s.Any(char.IsDigit))
+                                        serial_key_idx = line.Substring(idxn + 15).Trim(' ', ':').Split(' ')[0];
+                                        if (string.IsNullOrWhiteSpace(serial_key_idx) || !serial_key_idx.Any(char.IsDigit))
                                             continue;
                                     }
                                     else if (idxs > -1)
                                     {
-                                        s = line.Substring(idxs + 10).Trim(' ', ':').Split(' ')[0];
-                                        if (string.IsNullOrEmpty(s) || !s.Any(char.IsDigit))
+                                        serial_key_idx = line.Substring(idxs + 10).Trim(' ', ':').Split(' ')[0];
+                                        if (string.IsNullOrWhiteSpace(serial_key_idx) || !serial_key_idx.Any(char.IsDigit))
                                             continue;
                                     }
                                     else if (idxN > -1)
                                     {
-                                        s = line.Substring(idxN + 10).Trim(' ', ':').Split(' ')[0];
-                                        if (string.IsNullOrEmpty(s) || !s.Any(char.IsDigit))
+                                        serial_key_idx = line.Substring(idxN + 10).Trim(' ', ':').Split(' ')[0];
+                                        if (string.IsNullOrWhiteSpace(serial_key_idx) || !serial_key_idx.Any(char.IsDigit))
                                             continue;
                                     }
                                     //problem on how to exit form non serial number line which are not items
-                                    if ((string.IsNullOrEmpty(s) || !s.Any(char.IsDigit))) // the next word is probably not the serial so is beneath
+                                    string[] item_line = line.Split(' ');
+                                    if ((string.IsNullOrWhiteSpace(serial_key_idx) || !serial_key_idx.Any(char.IsDigit)) && line.Split(' ')[0].Any(char.IsDigit)) 
+                                        //&& serial.Split(';').Count() < int.Parse(quantity)) // the next word is probably not the serial so is beneath
                                     {
-                                        Console.WriteLine("check for serial on {0}", line);
-                                        serial += line.Split(' ')[0] + ";";
+                                        Console.WriteLine("check for serial on {0} count {1}", line, item_line.Count());
+                                        serial += line.Split(' ')[0].Replace('?','7') + ";";
                                     }
                                     else
-                                        serial += s;
+                                        serial += serial_key_idx;
                                     //  }
                                 }
                             }

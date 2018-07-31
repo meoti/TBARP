@@ -82,6 +82,10 @@ namespace InvoiceAnalyserMainUI
 
                     word = contents.Substring(contents.ToUpperInvariant().IndexOf(term.ToUpperInvariant()) + term.Length).Trim();
                     // Console.WriteLine("word after key is {0}", word);
+                    if (string.IsNullOrWhiteSpace(word.Trim()))
+                    {
+                        word = "until_next_first";
+                    }
                     word = regex.Replace(word, "\t");
                     //Console.WriteLine("expected word will be {0}", word.Trim().Split('\t')[0]);
                     break;
