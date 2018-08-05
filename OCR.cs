@@ -143,7 +143,7 @@ namespace InvoiceAnalyserMainUI
         {
             List<string> Images = new List<string>();
             MagickReadSettings settings = new MagickReadSettings();
-            settings.Density = new Density(730);
+            settings.Density = new Density(900);
 
             using (MagickImageCollection images = new MagickImageCollection())
             {
@@ -155,7 +155,7 @@ namespace InvoiceAnalyserMainUI
                 {
                     // Write page to file that contains the page number
                     image.Format = MagickFormat.Jpg;
-                    //image.Quality = 100;
+                    image.Quality = 100;
                     image.AutoThreshold(AutoThresholdMethod.OTSU);
                     //image.Depth = 8;
                     //image.Deskew(new Percentage(60));

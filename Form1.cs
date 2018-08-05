@@ -396,11 +396,13 @@ namespace InvoiceAnalyserMainUI
                 AddUpdateAppSettings(providerTextbox.Text, pref);
 
             }
+            MessageBox.Show("Done","Save Provider Data", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         static void AddUpdateAppSettings(string key, string value)
         {
             try
             {
+                key = key.ToLowerInvariant();
                 var configFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
                 var settings = configFile.AppSettings.Settings;
                 if (settings[key] == null)
@@ -487,7 +489,7 @@ namespace InvoiceAnalyserMainUI
             Pdf pdf = new Pdf();
             string provider = pdf.GetProviderName(contents);
             pdf.ReadProviderSettings(provider);
-            providerTextbox.Text = provider;
+            providerTextbox.Text = provider.ToUpper();
             pdf.ProcessContent(contents);
 
             var info = pdf.info;

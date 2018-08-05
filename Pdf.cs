@@ -206,10 +206,19 @@ namespace InvoiceAnalyserMainUI
                         {
                             string word = Process.Next_word_after_keyword(line, date);
                             //Console.WriteLine(word);
-                            if (!string.IsNullOrEmpty(word))
+                            if (!string.IsNullOrWhiteSpace(word))
                             {
                                 info["factureDate"] = word;
                                 checkdate = false;
+                            }
+                            else
+                            {
+                                if (line.ToUpperInvariant().Contains(date.ToUpperInvariant()))
+                                {
+                                    string sub = regex.Replace((line.Substring(line.ToUpperInvariant().IndexOf(date.ToUpperInvariant()) + date.Length).Trim()), "\t");
+                                    info["factureDate"] = sub.Split('\t')[0];
+                                    checkdate = false;
+                                }
                             }
                         }
 
