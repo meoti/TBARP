@@ -410,6 +410,7 @@ namespace InvoiceAnalyserMainUI
             Application.UseWaitCursor = false;
         }
 
+        
         private void maxButton_Click(object sender, EventArgs e)
         {
             maximize();
@@ -456,12 +457,25 @@ namespace InvoiceAnalyserMainUI
         private void processButton_Click(object sender, EventArgs e)
         {
             // label cleaning
-            factureDate_label.Text = "-------------";
-            commande_Label.Text = "-------------";
-            BVR_Label.Text = "-------------";
+            factureDate_label.Text = "Not found";
+            commande_Label.Text = "Not found";
+            BVR_Label.Text = "Not found";
             prix_label.Text = "0.00";
             bunifuCustomDataGrid2.Rows.Clear();
-            ProcessContent(contents);
+            //ProcessContent(contents);
+
+            string[] pref = new string[]{ header_nameTextbox.Text,designationTextbox.Text, quantityTextbox.Text, itemNumberTextbox.Text, string.Join(",", pos),
+            itemCountTextbox.Text, per_unitSwitch.Value.ToString(),tvaSwitch.Value.ToString(), fotterNameTextBox.Text,date_de_factureTextbox.Text, commandeTextbox.Text};
+
+            Pdf pdf = new Pdf(pref);
+            //string provider = pdf.GetProviderName(contents);
+            //pdf.ReadProviderSettings(provider);
+            //providerTextbox.Text = provider;
+            pdf.ProcessContent(contents);
+
+            var info = pdf.info;
+            //put info in UI
+            Print_To_Screen(info);
 
         }
         private async void loadBtn_Click(object sender, EventArgs e)
@@ -593,6 +607,10 @@ namespace InvoiceAnalyserMainUI
                         pos.Add(pos_new);
                     }
                 }
+            }
+            else
+            {
+                processButton.Visible = true;
             }
         }
 
@@ -788,8 +806,7 @@ namespace InvoiceAnalyserMainUI
             bunifuCustomDataGrid2.Rows.Clear();
 
 
-            // get contents and process
-            string[] delim = { Environment.NewLine, "\n" };
+            // get contents and process            
             string txt = pdfData[button.Name];
 
             //should be a better way to filter whitespace 
@@ -798,26 +815,31 @@ namespace InvoiceAnalyserMainUI
             txt = txt.Replace("\n\r\n", Environment.NewLine);
             //txt = return_regex.Replace(txt, Environment.NewLine);
             txt = txt.Replace('|', 'I');
-            contents = txt.Split(delim, StringSplitOptions.None);
+            contents = txt.Split(new string[] { Environment.NewLine, "\n" }, StringSplitOptions.None);
             txt = regex.Replace(txt, "\t");
             content_Box.Text = (txt.Replace(" ", "-"));
             
-            //test from saved data
+            //get from saved data
             Pdf pdf = new Pdf();
             string provider = pdf.GetProviderName(contents);
             pdf.ReadProviderSettings(provider);
-            pdf.ProcessContent(contents);
-            var info = pdf.info;
-            
-            //put info in UI
             providerTextbox.Text = provider;
+            pdf.ProcessContent(contents);
+
+            var info = pdf.info;
+            //put info in UI
+            Print_To_Screen(info);
+        }
+
+        private void Print_To_Screen(Dictionary<string,string> info)
+        {           
             factureDate_label.Text = info["factureDate"];
             commande_Label.Text = info["commande"];
             prix_label.Text = info["prix"];
             BVR_Label.Text = info["BVR"];
             try
             {
-                string[] items = info["item"].Split(delim, StringSplitOptions.RemoveEmptyEntries);
+                string[] items = info["item"].Split(new string[] { Environment.NewLine, "\n" }, StringSplitOptions.RemoveEmptyEntries);
                 bunifuCustomDataGrid2.Rows.Clear();
                 foreach (string item in items)
                 {
@@ -828,7 +850,7 @@ namespace InvoiceAnalyserMainUI
             catch (Exception)
             {
 
-            }   
+            }
         }
 
         private void DropBox_DragEnter(object sender, DragEventArgs e)

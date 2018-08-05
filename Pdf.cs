@@ -42,6 +42,34 @@ namespace InvoiceAnalyserMainUI
 
         }
 
+        public Pdf(string[] prefs)
+        {
+            // init with values from screen
+            designationColumn = int.Parse(prefs[1]);
+            quantityColumn = int.Parse(prefs[2]);
+            itemNumberColumn = int.Parse(prefs[3]);
+            itemCount = int.Parse(prefs[5]);
+            headerKeyword = prefs[0];
+            fotterKeyword = prefs[8];
+            date = prefs[9];
+            commandNumber = prefs[10];
+            string s_pos = prefs[4];
+            if (!string.IsNullOrEmpty(s_pos))
+            {
+                pos = s_pos.Split(',').Select(n => Convert.ToInt32(n)).ToArray();
+            }
+            perUnit = bool.Parse(prefs[6]);
+            tvaInclu = bool.Parse(prefs[7]);
+
+            info = new Dictionary<string, string>();
+            info["factureDate"] = "";
+            info["commande"] = "";
+            info["BVR"] = "------------";
+            info["prix"] = "0.00";
+            provider_Exist = true;
+
+        }
+
         // handle drag and drop
 
         // get list of pdf files to process, each is an invoice-
@@ -284,7 +312,7 @@ namespace InvoiceAnalyserMainUI
                                 //find the item line and item elements
                                 line_p = regex.Replace(line_p, "\t");
 
-                                if (line_p.Split('\t').Length >= itemCount) // item section start
+                                if (line_p.Split('\t').Length >= itemCount && itemCount != 0) // item section start
                                 {
                                     try
                                     {
@@ -458,18 +486,18 @@ namespace InvoiceAnalyserMainUI
                             if (line.ToLowerInvariant().Contains("total"))
                             {
                                 string total = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Last();
-                                if (string.IsNullOrEmpty(total) || !total.Any(char.IsDigit))
+                                if (string.IsNullOrWhiteSpace(total) || !total.Any(char.IsDigit))
                                 {
-                                    p = true;
+                                    p = true;// total is not on the line, maybe after
                                     continue;
                                 }
                                 else
                                 {
-                                    total = total.Replace("-", string.Empty).Replace("_", string.Empty).Replace("—", string.Empty);
+                                    total = total.Replace("-", string.Empty).Replace("_", string.Empty).Replace("—", string.Empty).Replace("'", string.Empty);
                                     if (double.TryParse(total, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
                                     {
                                         p = false;
-                                        if (!total.Contains('.'))
+                                        if (!total.Contains('.') | total.Contains(','))
                                             total = total.Insert(total.Length - 2, ".");
                                         info["prix"] = total;
                                     }
@@ -482,7 +510,7 @@ namespace InvoiceAnalyserMainUI
                                 {
                                     string total = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Last();
                                     Console.WriteLine(total);
-                                    total = total.Replace('-', ',').Replace('_', ',').Replace('—', ',');
+                                    total = total.Replace("-", string.Empty).Replace("_", string.Empty).Replace("—", string.Empty).Replace("'", string.Empty);
                                     if (double.TryParse(total, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
                                     {
                                         p = false;
