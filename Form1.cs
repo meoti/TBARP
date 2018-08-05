@@ -25,7 +25,7 @@ namespace InvoiceAnalyserMainUI
         private List<Listbutton> dynaPdfBtns = new List<Listbutton>();
         private Regex regex = new Regex(@"[ ]{2,}", RegexOptions.None);
         private Regex return_regex = new Regex("[\r\n]{2,}", RegexOptions.None);
-        private string tv;
+        //private string tv;
         private ObservableCollection<string> _files = new ObservableCollection<string>();
         private Dictionary<string, string> pdfData = new Dictionary<string, string>();
         private int i = 0;

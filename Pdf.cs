@@ -320,16 +320,7 @@ namespace InvoiceAnalyserMainUI
                                 }
                                 //find the item line and item elements
                                 line_p = regex.Replace(line_p, "\t");
-                                if (!string.IsNullOrWhiteSpace(name))
-                                {
-                                    infoItem.AppendLine(name + "|" + quantity + "|" + item_number + "|" + price_ht + "|" +
-                                    string.Format("{0:0.00}", price_tv) + "|" + tv + "|" + serial);
-                                }                                    
-                                name = "";
-                                quantity = "";
-                                item_number = "";
-                                price_ht = " ";
-                                serial = "";
+
 
                                 if (line_p.Split('\t').Length >= itemCount && itemCount != 0) // item section start
                                 {
@@ -337,9 +328,17 @@ namespace InvoiceAnalyserMainUI
                                     {
                                         Console.WriteLine("Itemline - {0}", line_p);
                                         checkserial = false;
+                                        if (!string.IsNullOrWhiteSpace(name))
+                                        {
+                                            infoItem.AppendLine(name + "|" + quantity + "|" + item_number + "|" + price_ht + "|" +
+                                            string.Format("{0:0.00}", price_tv) + "|" + tv + "|" + serial);
+                                        }
+                                        name = "";
+                                        quantity = "";
+                                        item_number = "";
+                                        price_ht = " ";
+                                        serial = "";
                                         line_p = line_p.Replace("_", "-").Replace("—", "-");
-
-
 
                                         string[] items = line_p.Split('\t');
                                         if (designationColumn != -1)
@@ -362,7 +361,14 @@ namespace InvoiceAnalyserMainUI
                                         {
                                             price_ht = items[itemCount - 1].Replace(',', '.');
                                             if (!price_ht.Contains('.') | price_ht.Contains(','))
+                                            {
                                                 price_ht = price_ht.Insert(price_ht.Length - 2, ".");
+                                            }
+                                            else
+                                            {
+                                                price_ht = price_ht.Substring(0, price_ht.IndexOf('.') + 2);
+                                            }
+                                                
                                         }
                                         // logic for getting maximum double value in item line for price ht
                                         double result;
@@ -464,16 +470,22 @@ namespace InvoiceAnalyserMainUI
                                         if (string.IsNullOrWhiteSpace(serial_key_idx) || !serial_key_idx.Any(char.IsDigit))
                                             continue;
                                     }
+                                    else
+                                    {
+                                        string serial_line = regex.Replace(line, "\t");
+                                        if (serial_line.Split('\t').Count()  == 0 || serial_line.Split('\t').Count() > 2)
+                                            continue;
+                                    }
                                     //problem on how to exit form non serial number line which are not items
-                                    string[] item_line = line.Split(' ');
+                                    
                                     if ((string.IsNullOrWhiteSpace(serial_key_idx) || !serial_key_idx.Any(char.IsDigit)) && line.Split(' ')[0].Any(char.IsDigit)) 
                                         //&& serial.Split(';').Count() < int.Parse(quantity)) // the next word is probably not the serial so is beneath
                                     {
-                                        Console.WriteLine("check for serial on {0} count {1}", line, item_line.Count());
+                                        Console.WriteLine("check for serial on {0} ", line);
                                         serial += line.Split(' ')[0].Replace('?','7') + ";";
                                     }
                                     else
-                                        serial += serial_key_idx;
+                                        serial += serial_key_idx ;
                                     //  }
                                 }
                             }
@@ -528,9 +540,16 @@ namespace InvoiceAnalyserMainUI
                                     if (double.TryParse(total, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
                                     {
                                         p = false;
-                                        if (!total.Contains('.') | total.Contains(','))
-                                            total = total.Insert(total.Length - 2, ".");
-                                        info["prix"] = total;
+                                        try
+                                        {
+                                            if (!total.Contains('.') | total.Contains(','))
+                                                total = total.Insert(total.Length - 2, ".");
+                                            info["prix"] = total;
+                                        }
+                                        catch (Exception)
+                                        {
+                                           
+                                        }
                                     }
 
                                 }
