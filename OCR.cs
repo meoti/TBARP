@@ -144,7 +144,7 @@ namespace InvoiceAnalyserMainUI
         {
             List<string> Images = new List<string>();
             MagickReadSettings settings = new MagickReadSettings();
-            settings.Density = new Density(500);
+            settings.Density = new Density(600);
 
             using (MagickImageCollection images = new MagickImageCollection())
             {
