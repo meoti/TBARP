@@ -7,6 +7,7 @@ using ImageMagick;
 using System.Diagnostics;
 using Tesseract;
 using System.Text.RegularExpressions;
+using System.Drawing;
 
 namespace InvoiceAnalyserMainUI
 {
@@ -143,7 +144,7 @@ namespace InvoiceAnalyserMainUI
         {
             List<string> Images = new List<string>();
             MagickReadSettings settings = new MagickReadSettings();
-            settings.Density = new Density(900);
+            settings.Density = new Density(500);
 
             using (MagickImageCollection images = new MagickImageCollection())
             {
@@ -159,8 +160,42 @@ namespace InvoiceAnalyserMainUI
                     image.AutoThreshold(AutoThresholdMethod.OTSU);
                     //image.Depth = 8;
                     //image.Deskew(new Percentage(60));
-                    image.Write(pdfpath + "_Page" + page + ".jpg");
-                    Images.Add(pdfpath + "_Page" + page + ".jpg");
+                    //image.Write(pdfpath + "_Page" + page + ".jpg");
+                    // Establish a bitmap  object.
+                    Bitmap imgBitmap =  (Bitmap)image.ToBitmap();
+
+                    if (imgBitmap != null)
+                    {
+                        // Establish a color object.
+                        Color curColor;
+                        int ret;
+                        // The width of the image.
+                        for (int iX = 0; iX < imgBitmap.Width; iX++)
+                        {
+                            // The height of the image.
+                            for (int iY = 0; iY < imgBitmap.Height; iY++)
+                            {
+                                // Get the pixel from bitmap object.
+                                curColor = imgBitmap.GetPixel(iX, iY);
+                                // Transform RGB to Y (gray scale)
+                                ret = (int)(curColor.R * 0.299 + curColor.G * 0.578 + curColor.B * 0.114);
+                                // This is our threshold, you can change it and to try what are different.
+                                if (ret > 120)
+                                {
+                                    ret = 255;
+                                }
+                                else
+                                {
+                                    ret = 0;
+                                }
+                                // Set the pixel into the bitmap object.
+                                imgBitmap.SetPixel(iX, iY, Color.FromArgb(ret, ret, ret));
+                            } // The closing 'The height of the image'.
+                        } // The closing 'The width of the image'.
+
+                        imgBitmap.Save(pdfpath + "_Page" + page + ".jpg");
+                    }
+                        Images.Add(pdfpath + "_Page" + page + ".jpg");
                     page++;
                 }
 

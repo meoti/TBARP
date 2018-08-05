@@ -320,6 +320,16 @@ namespace InvoiceAnalyserMainUI
                                 }
                                 //find the item line and item elements
                                 line_p = regex.Replace(line_p, "\t");
+                                if (!string.IsNullOrWhiteSpace(name))
+                                {
+                                    infoItem.AppendLine(name + "|" + quantity + "|" + item_number + "|" + price_ht + "|" +
+                                    string.Format("{0:0.00}", price_tv) + "|" + tv + "|" + serial);
+                                }                                    
+                                name = "";
+                                quantity = "";
+                                item_number = "";
+                                price_ht = " ";
+                                serial = "";
 
                                 if (line_p.Split('\t').Length >= itemCount && itemCount != 0) // item section start
                                 {
@@ -327,14 +337,9 @@ namespace InvoiceAnalyserMainUI
                                     {
                                         Console.WriteLine("Itemline - {0}", line_p);
                                         checkserial = false;
-                                        if (!string.IsNullOrEmpty(name))
-                                            infoItem.AppendLine(name + "|" + quantity + "|" + item_number + "|" + price_ht + "|" +
-                                            string.Format("{0:0.00}", price_tv) + "|" + tv + "|" + serial);
-                                        name = "";
-                                        quantity = "";
-                                        item_number = "";
-                                        price_ht = " ";
-                                        serial = "";
+                                        line_p = line_p.Replace("_", "-").Replace("—", "-");
+
+
 
                                         string[] items = line_p.Split('\t');
                                         if (designationColumn != -1)
@@ -356,6 +361,8 @@ namespace InvoiceAnalyserMainUI
                                         if (itemCount != -1)
                                         {
                                             price_ht = items[itemCount - 1].Replace(',', '.');
+                                            if (!price_ht.Contains('.') | price_ht.Contains(','))
+                                                price_ht = price_ht.Insert(price_ht.Length - 2, ".");
                                         }
                                         // logic for getting maximum double value in item line for price ht
                                         double result;
@@ -428,9 +435,6 @@ namespace InvoiceAnalyserMainUI
                                 // find serial number if switch is on
                                 // if (serialSwitch.Value)
                                 //{ problem with hard coded keywords
-
-
-
                                 //end of item line
                                 if (line.Contains("Seriennr.") | line.Contains("Numéro de série") | line.Contains("N.DE SERIE"))
                                 {
@@ -495,7 +499,8 @@ namespace InvoiceAnalyserMainUI
                             if (line.ToLowerInvariant().Contains("total"))
                             {
                                 string total = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Last();
-                                if (string.IsNullOrWhiteSpace(total) || !total.Any(char.IsDigit))
+                                total = total.Replace("-", string.Empty).Replace("_", string.Empty).Replace("—", string.Empty).Replace("'", string.Empty);
+                                if (!double.TryParse(total, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
                                 {
                                     p = true;// total is not on the line, maybe after
                                     continue;

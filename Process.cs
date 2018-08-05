@@ -76,7 +76,7 @@ namespace InvoiceAnalyserMainUI
             {
                 //Console.WriteLine(term + "-vs-" + keyword);
                 //Console.WriteLine(Process.CalculateSimilarity(term.ToLowerInvariant(), keyword.ToLowerInvariant()));
-                if (Process.CalculateSimilarity(term.ToLowerInvariant(), keyword.ToLowerInvariant()) >= 0.75)
+                if (Process.CalculateSimilarity(term.ToLowerInvariant(), keyword.ToLowerInvariant()) >= 0.70)
                 {
                     //Console.WriteLine(pline);  // find the word after the keyword and that is the order code cant check for numbers or pattern it keeps changing
 
@@ -84,7 +84,7 @@ namespace InvoiceAnalyserMainUI
                     // Console.WriteLine("word after key is {0}", word);
                     if (string.IsNullOrWhiteSpace(word.Trim()))
                     {
-                        word = "Find_next";
+                        word = "Not Found";
                     }
                     word = regex.Replace(word, "\t");
                     //Console.WriteLine("expected word will be {0}", word.Trim().Split('\t')[0]);
