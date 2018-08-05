@@ -394,7 +394,7 @@ namespace InvoiceAnalyserMainUI
                                         if (perUnit)
                                         {
                                             int rab_col = itemCount - 2;
-                                            if ((rab_col != designationColumn - 1 || rab_col != quantityColumn - 1) || rab_col != itemNumberColumn - 1)
+                                            if ((rab_col != designationColumn - 1 && rab_col != quantityColumn - 1) && rab_col != itemNumberColumn - 1)
                                             {
                                                 double rabais = 0;
                                                 try
@@ -402,13 +402,22 @@ namespace InvoiceAnalyserMainUI
                                                     rabais = double.Parse(items[rab_col]);
                                                     if (rabais != double.Parse(price_ht) && rabais < 100)
                                                     {
-                                                        Console.WriteLine(rabais);
-                                                        double prix = (double.Parse(price_ht) - (rabais / 100 * double.Parse(price_ht))) * int.Parse(quantity);
-
-                                                        prix = Math.Round(prix * 20) / 20;
-
-                                                        price_ht = string.Format("{0:0.00}", prix);
+                                                        rabais = rabais / 100 * double.Parse(price_ht);
                                                     }
+
+                                                }
+                                                catch (Exception)
+                                                {
+
+                                                }
+                                                try
+                                                {
+                                                    Console.WriteLine(rabais);
+                                                    double prix = (double.Parse(price_ht) - rabais) * int.Parse(quantity);
+
+                                                    prix = Math.Round(prix * 20) / 20;
+
+                                                    price_ht = string.Format("{0:0.00}", prix);
                                                 }
                                                 catch (Exception)
                                                 {
