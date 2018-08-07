@@ -67,6 +67,7 @@ namespace InvoiceAnalyserMainUI
         public static string Next_word_after_keyword(string contents, string keyword)
         {
             Regex regex = new Regex(@"[ ]{2,}", RegexOptions.None);
+            //contents = Regex.Replace(contents, "[^.a-zA-Z0-9]", " ");
             contents = contents.Replace('-', ' ').Replace('_', ' ').Replace('—', ' ').Replace(':', ' ');
             keyword = keyword.Replace('-', ' ').Replace('_', ' ').Replace('—', ' ').Replace(':', ' ');
             string word = " ";
@@ -76,20 +77,23 @@ namespace InvoiceAnalyserMainUI
             {
                 //Console.WriteLine(term + "-vs-" + keyword);
                 //Console.WriteLine(Process.CalculateSimilarity(term.ToLowerInvariant(), keyword.ToLowerInvariant()));
-                if (Process.CalculateSimilarity(term.ToLowerInvariant(), keyword.ToLowerInvariant()) >= 0.70)
+                if (!(string.IsNullOrWhiteSpace(term) && term.Length < 3))
                 {
-                    //Console.WriteLine(pline);  // find the word after the keyword and that is the order code cant check for numbers or pattern it keeps changing
-
-                    word = contents.Substring(contents.ToUpperInvariant().IndexOf(term.ToUpperInvariant()) + term.Length).Trim();
-                    // Console.WriteLine("word after key is {0}", word);
-                    if (string.IsNullOrWhiteSpace(word.Trim()))
+                    if (Process.CalculateSimilarity(term.ToLowerInvariant(), keyword.ToLowerInvariant()) >= 0.70)
                     {
-                        word = "Not Found";
-                    }
-                    word = regex.Replace(word, "\t");
-                    //Console.WriteLine("expected word will be {0}", word.Trim().Split('\t')[0]);
-                    break;
+                        //Console.WriteLine(pline);  // find the word after the keyword and that is the order code cant check for numbers or pattern it keeps changing
 
+                        word = contents.Substring(contents.ToUpperInvariant().IndexOf(term.ToUpperInvariant()) + term.Length).Trim();
+                        // Console.WriteLine("word after key is {0}", word);
+                        if (string.IsNullOrWhiteSpace(word.Trim()))
+                        {
+                            word = "Not Found";
+                        }
+                        word = regex.Replace(word, "\t");
+                        //Console.WriteLine("expected word will be {0}", word.Trim().Split('\t')[0]);
+                        break;
+
+                    } 
                 }
             }
             return word.Trim().Split('\t')[0];

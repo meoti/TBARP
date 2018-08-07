@@ -268,6 +268,13 @@ namespace InvoiceAnalyserMainUI
                                 {
                                     info["BVR"] = w;
                                     check = false;
+
+                                    // get invoice toal from the BVR number
+                                    if(w.IndexOf('>') != w.LastIndexOf('>'))
+                                    {
+                                        string total = w.Replace(" ","").Substring(2, w.IndexOf('>') - 2);
+                                        info["prix_total"] = total.Insert(total.Length - 3, ".");
+                                    }
                                     break;
                                 }
                             }
@@ -280,10 +287,11 @@ namespace InvoiceAnalyserMainUI
                             continue;
                         }
                         // footer section
-                        if (Process.isfooter(line, fotterKeyword))
+                        if (!ffound && Process.isfooter(line, fotterKeyword))
                         {
                             ffound = true;
                             Console.WriteLine("<table end found> \n" + line);
+                            Console.WriteLine("Itemline fotter - {0}", line_p);
                             if (!string.IsNullOrEmpty(name))
                                 infoItem.AppendLine(name + "|" + quantity + "|" + item_number + "|" + price_ht + "|" +
                                         string.Format("{0:0.00}", price_tv) + "|" + tv + "|" + serial);
@@ -313,7 +321,7 @@ namespace InvoiceAnalyserMainUI
                                         terms = line_p.Split('\t');
                                         if (terms[ipos - 1].Trim().IndexOf(" ") != -1)
                                             terms[ipos - 1] = terms[ipos - 1].Insert(terms[ipos - 1].Trim().IndexOf(" "), " \t");
-                                        Console.WriteLine(terms[ipos - 1]);
+                                        Console.WriteLine("Positions", terms[ipos - 1]);
                                         line_p = string.Join("\t", terms);
                                     }
                                     line_p = string.Join("\t", terms);
@@ -366,7 +374,7 @@ namespace InvoiceAnalyserMainUI
                                             }
                                             else
                                             {
-                                                price_ht = price_ht.Substring(0, price_ht.IndexOf('.') + 2);
+                                                price_ht = price_ht.Substring(0, price_ht.IndexOf('.') + 3);
                                             }
                                                 
                                         }
@@ -394,9 +402,10 @@ namespace InvoiceAnalyserMainUI
                                         if (perUnit)
                                         {
                                             int rab_col = itemCount - 2;
+                                            double rabais = 0;
                                             if ((rab_col != designationColumn - 1 && rab_col != quantityColumn - 1) && rab_col != itemNumberColumn - 1)
                                             {
-                                                double rabais = 0;
+                                                
                                                 try
                                                 {
                                                     rabais = double.Parse(items[rab_col]);
@@ -404,15 +413,19 @@ namespace InvoiceAnalyserMainUI
                                                     {
                                                         rabais = rabais / 100 * double.Parse(price_ht);
                                                     }
-
+                                                    else
+                                                    {
+                                                        rabais = 0;
+                                                    }
                                                 }
                                                 catch (Exception)
                                                 {
-
+                                                    rabais = 0;
                                                 }
+                                            }
                                                 try
                                                 {
-                                                    Console.WriteLine(rabais);
+                                                    Console.WriteLine("discount = ",rabais);
                                                     double prix = (double.Parse(price_ht) - rabais) * int.Parse(quantity);
 
                                                     prix = Math.Round(prix * 20) / 20;
@@ -424,8 +437,8 @@ namespace InvoiceAnalyserMainUI
 
                                                 }
 
-                                            }
                                         }
+                                        
                                         double tva = double.Parse(tv) / 100 * double.Parse(price_ht);
                                         tva = Math.Round(tva * 20) / 20;
                                         //get price with tax or without
@@ -499,6 +512,7 @@ namespace InvoiceAnalyserMainUI
                                 }
                             }
                         }
+                        
                         // if fotter found then look for total prix, default look for last item in line with toal chf
                         if (ffound)
                         {
@@ -544,7 +558,7 @@ namespace InvoiceAnalyserMainUI
                                 if (p)
                                 {
                                     string total = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Last();
-                                    Console.WriteLine(total);
+                                    //Console.WriteLine(total);
                                     total = total.Replace("-", string.Empty).Replace("_", string.Empty).Replace("—", string.Empty).Replace("'", string.Empty);
                                     if (double.TryParse(total, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
                                     {

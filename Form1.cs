@@ -204,6 +204,10 @@ namespace InvoiceAnalyserMainUI
             {
                 Minimize();
             }
+            if(dynaPdfListPanel.Controls.Count > 0)
+            {
+                processButton.Visible = true;
+            }
             this.homePanel.Visible = false;
             this.dynaPdfListPanel.Visible = false;
         }
@@ -272,10 +276,10 @@ namespace InvoiceAnalyserMainUI
                     }
                 }
             }
-            else
-            {
-                processButton.Visible = true;
-            }
+            //else if(true)
+            //{
+            //    processButton.Visible = true;
+            //}
         }
 
         private void panel5_MouseClick(object sender, MouseEventArgs e)
@@ -446,8 +450,9 @@ namespace InvoiceAnalyserMainUI
         {
             if (pdfData.Count > 0)
             {
-                this.dynaPdfListPanel.Visible = true;
-                this.homePanel.Visible = false;
+                processButton.Visible = false;
+                dynaPdfListPanel.Visible = true;
+                homePanel.Visible = false;
             }
             else
             {
@@ -501,7 +506,16 @@ namespace InvoiceAnalyserMainUI
         {           
             factureDate_label.Text = info["factureDate"];
             commande_Label.Text = info["commande"];
-            prix_label.Text = info["prix"];
+            try
+            {
+               
+                prix_label.Text = string.Format("{0:0.00}", Math.Truncate(double.Parse(info["prix_total"]) * 20) / 20);
+            }
+            catch (Exception)
+            {
+                prix_label.Text = info["prix"];
+            }
+            
             BVR_Label.Text = info["BVR"];
             try
             {
@@ -525,8 +539,8 @@ namespace InvoiceAnalyserMainUI
             {
                 e.Effect = DragDropEffects.Copy;
 
-                this.DropBox.BorderStyle = BorderStyle.None;
-                this.borderpanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(102)))), ((int)(((byte)(205)))));
+                DropBox.BorderStyle = BorderStyle.None;
+                borderpanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(102)))), ((int)(((byte)(204)))));
             }
             else
             {
@@ -537,12 +551,13 @@ namespace InvoiceAnalyserMainUI
         private void DropBox_DragLeave(object sender, EventArgs e)
         {
             this.DropBox.BorderStyle = BorderStyle.FixedSingle;
-            this.borderpanel.BackColor = System.Drawing.Color.Transparent;
+            borderpanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(102)))), ((int)(((byte)(204)))));
         }
         private void DropBox_MouseLeave(object sender, EventArgs e)
         {
             this.DropBox.BorderStyle = BorderStyle.FixedSingle;
-            this.borderpanel.BackColor = System.Drawing.Color.Transparent;
+            borderpanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(102)))), ((int)(((byte)(204)))));
+            //borderpanel.BackColor = System.Drawing.Color.Transparent;
         }
 
         private void DropBox_DragDrop(object sender, DragEventArgs e)
@@ -580,7 +595,7 @@ namespace InvoiceAnalyserMainUI
 
             await WorkAsync();
             this.circleProgressbar.Value = 100;
-            Thread.Sleep(100);
+            Thread.Sleep(1200);
             animatepanel.Visible = false;
             homePanel.Visible = false;
 
@@ -641,15 +656,18 @@ namespace InvoiceAnalyserMainUI
                 //animatepanel.Refresh();
                 if(i+1 == _files.Count)
                 {
-                    this.circleProgressbar.Value = 96;
+                    this.circleProgressbar.Value = 98;
                 }
             });
         }
 
         private void homeButton_Click(object sender, EventArgs e)
-        {            
+        {
             //DropBox.Items.Clear();
+            borderpanel.BackColor = System.Drawing.Color.Transparent;
             executeButton.Visible = false;
+            DropBox.Items.Clear();
+            _files.Clear();
             homeTransition.ShowSync(homePanel);
             Expand();
         }
