@@ -27,6 +27,7 @@ namespace InvoiceAnalyserMainUI
         private Regex return_regex = new Regex("[\r\n]{2,}", RegexOptions.None);
         //private string tv;
         private ObservableCollection<string> _files = new ObservableCollection<string>();
+        
         private Dictionary<string, string> pdfData = new Dictionary<string, string>();
         private int i = 0;
 
@@ -505,7 +506,7 @@ namespace InvoiceAnalyserMainUI
         private void Print_To_Screen(Dictionary<string,string> info)
         {           
             factureDate_label.Text = info["factureDate"];
-            commande_Label.Text = info["commande"];
+            commande_Label.Text = Regex.Replace(info["commande"], "[^a-zA-Z0-9._/]", " ").Trim();
             try
             {
                
@@ -568,8 +569,8 @@ namespace InvoiceAnalyserMainUI
 
                 foreach (string filePath in files)
                 {
-                    if (!_files.Contains(filePath))
-                        _files.Add(filePath);
+                    if (!DropBox.Items.Contains(filePath))
+                        
                     DropBox.Items.Add(filePath);
                 }
                 if (!executeButton.Visible)
@@ -587,8 +588,14 @@ namespace InvoiceAnalyserMainUI
             labelf.Text = "Processing PDF ...";
             Thread.Sleep(1);
             circleProgressbar.Value = 1;
-            
+
             // _files contains all the files.
+            foreach (string filePath in DropBox.Items)
+            {
+                if (!_files.Contains(filePath))
+                    _files.Add(filePath);
+                
+            }
             // call pdf to convert each file async
             // Thread th = new Thread(work);
             // th.Start();
@@ -622,6 +629,7 @@ namespace InvoiceAnalyserMainUI
 
         private Task WorkAsync()
         {
+            
             return Task.Run(() =>
             {
                 Parallel.ForEach(_files, new ParallelOptions() { MaxDegreeOfParallelism = 4 },
@@ -635,28 +643,29 @@ namespace InvoiceAnalyserMainUI
         private void DoOcr(string pdffile)
         {
             // get filename
+
             string filename = System.IO.Path.GetFileNameWithoutExtension(pdffile);
             OCR ocr = new OCR();
             i += 1;
             List<string> imgs = new List<string>(ocr.PDFToImage(pdffile));
-            this.Invoke((Action)delegate
+            Invoke((Action)delegate
             {
-                this.circleProgressbar.Value = (int)(i / (double)_files.Count * 50); 
+                circleProgressbar.Value = (int)(i / (double)_files.Count * 50); 
                 //animatepanel.Refresh();
             });
             pdfData[filename] = ocr.v3_GetContents(imgs).ToString();
             i += 1;
-            this.Invoke((Action)delegate
+            Invoke((Action)delegate
             {
 
-                this.circleProgressbar.Value = (int)(i / (double)_files.Count * 50) ;
+                circleProgressbar.Value = (int)(i / (double)_files.Count * 50) ;
                 //Console.WriteLine(i );
                 if(i + 1 - _files.Count > 0)
                 labelf.Text = " Reading Content " + (i+1 -_files.Count) + " of " + _files.Count;                
                 //animatepanel.Refresh();
                 if(i+1 == _files.Count)
                 {
-                    this.circleProgressbar.Value = 98;
+                    circleProgressbar.Value = 98;
                 }
             });
         }
@@ -667,27 +676,23 @@ namespace InvoiceAnalyserMainUI
             borderpanel.BackColor = System.Drawing.Color.Transparent;
             executeButton.Visible = false;
             DropBox.Items.Clear();
-            _files.Clear();
+            //_files.Clear();
             homeTransition.ShowSync(homePanel);
             Expand();
         }
 
-        private void DropBox_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (e.KeyChar == (char)Keys.Delete)
-            {
-                _files.RemoveAt(DropBox.SelectedIndex);
-                DropBox.Items.RemoveAt(DropBox.SelectedIndex);
-            }
-            
-        }
+        
 
         private void DropBox_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
             if (e.KeyCode == Keys.Delete && DropBox.SelectedIndex >= 0)
             {
-                _files.RemoveAt(DropBox.SelectedIndex);
-                DropBox.Items.RemoveAt(DropBox.SelectedIndex);
+                //_files.RemoveAt(DropBox.SelectedIndex);
+                foreach(var item in DropBox.SelectedItems)
+                {
+                    DropBox.Items.Remove(item);
+                }
+                
             }
         }
     }

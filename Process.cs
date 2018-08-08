@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace InvoiceAnalyserMainUI
 {
@@ -67,12 +69,13 @@ namespace InvoiceAnalyserMainUI
         public static string Next_word_after_keyword(string contents, string keyword)
         {
             Regex regex = new Regex(@"[ ]{2,}", RegexOptions.None);
-            //contents = Regex.Replace(contents, "[^.a-zA-Z0-9]", " ");
-            contents = contents.Replace('-', ' ').Replace('_', ' ').Replace('—', ' ').Replace(':', ' ');
+            
+            contents = contents.Replace('-', ' ').Replace('_', ' ').Replace('—', ' ').Replace(':', ' ').Replace(';',' ');
             keyword = keyword.Replace('-', ' ').Replace('_', ' ').Replace('—', ' ').Replace(':', ' ');
             string word = " ";
             // split line and check each word for sim. if above threshold, 
-            string[] line_terms = regex.Replace(contents, "\t").Split('\t');
+            List<string> line_terms = regex.Replace(contents, "\t").Split('\t').ToList();
+            line_terms = line_terms.Where(term => term.Length > 3).ToList();
             foreach (string term in line_terms)
             {
                 //Console.WriteLine(term + "-vs-" + keyword);
@@ -81,22 +84,34 @@ namespace InvoiceAnalyserMainUI
                 {
                     if (Process.CalculateSimilarity(term.ToLowerInvariant(), keyword.ToLowerInvariant()) >= 0.70)
                     {
-                        //Console.WriteLine(pline);  // find the word after the keyword and that is the order code cant check for numbers or pattern it keeps changing
+                        //Console.WriteLine(line_terms[line_terms.IndexOf(term)+1]);  // find the word after the keyword and that is the order code cant check for numbers or pattern it keeps changing
 
-                        word = contents.Substring(contents.ToUpperInvariant().IndexOf(term.ToUpperInvariant()) + term.Length).Trim();
-                        // Console.WriteLine("word after key is {0}", word);
-                        if (string.IsNullOrWhiteSpace(word.Trim()))
+                        try
                         {
-                            word = "Not Found";
+                            word = line_terms[line_terms.IndexOf(term) + 1];
+                            break;
                         }
-                        word = regex.Replace(word, "\t");
-                        //Console.WriteLine("expected word will be {0}", word.Trim().Split('\t')[0]);
-                        break;
+                        catch (Exception)
+                        {
+
+                             word = "Not Found";
+                        }
+                        
+                        ////word = contents.Substring(contents.ToUpperInvariant().IndexOf(term.ToUpperInvariant()) + term.Length).Trim();
+                        ////// Console.WriteLine("word after key is {0}", word);
+                        //if (string.IsNullOrWhiteSpace(word.Trim()))
+                        //{
+                           
+                        //}
+                        ////word = regex.Replace(word, "\t");
+                        //////Console.WriteLine("expected word will be {0}", word.Trim().Split('\t')[0]);
+                        ////break;
+                       
 
                     } 
                 }
             }
-            return word.Trim().Split('\t')[0];
+            return word;//word.Trim().Split('\t')[0];
         }
 
         public static bool KeywordIn(string pline, string keyword)

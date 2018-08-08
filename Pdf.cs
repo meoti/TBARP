@@ -336,7 +336,7 @@ namespace InvoiceAnalyserMainUI
                                     {
                                         Console.WriteLine("Itemline - {0}", line_p);
                                         checkserial = false;
-                                        if (!string.IsNullOrWhiteSpace(name))
+                                        if (!string.IsNullOrWhiteSpace(name)|| !string.IsNullOrWhiteSpace(item_number))
                                         {
                                             infoItem.AppendLine(name + "|" + quantity + "|" + item_number + "|" + price_ht + "|" +
                                             string.Format("{0:0.00}", price_tv) + "|" + tv + "|" + serial);
@@ -346,7 +346,7 @@ namespace InvoiceAnalyserMainUI
                                         item_number = "";
                                         price_ht = " ";
                                         serial = "";
-                                        line_p = line_p.Replace("_", "-").Replace("—", "-");
+                                        line_p = line_p.Replace("_", "-").Replace("—", "-").Replace("*","");
 
                                         string[] items = line_p.Split('\t');
                                         if (designationColumn != -1)
