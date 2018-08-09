@@ -204,9 +204,11 @@ namespace InvoiceAnalyserMainUI
                     {
                         if (checkdate)
                         {
+                            
+
                             string word = Process.Next_word_after_keyword(line, date);
                             //Console.WriteLine(word);
-                            if (!string.IsNullOrWhiteSpace(word))
+                            if (!string.IsNullOrWhiteSpace(word) && word != "Not Found")
                             {
                                 info["factureDate"] = word;
                                 checkdate = false;
@@ -216,16 +218,29 @@ namespace InvoiceAnalyserMainUI
                                 if (line.ToUpperInvariant().Contains(date.ToUpperInvariant()))
                                 {
                                     string sub = regex.Replace((line.Substring(line.ToUpperInvariant().IndexOf(date.ToUpperInvariant()) + date.Length).Trim()), "\t");
-                                    info["factureDate"] = sub.Split('\t')[0];
+                                    info["factureDate"] = sub.Split('\t').Where(term => term.Trim().Length > 4).ToList()[0];
                                     checkdate = false;
+                                }
+                                foreach (string words in line.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries))
+                                {
+                                    try
+                                    {
+
+                                        info["Idate"] = DateTime.Parse(words.Trim(), System.Globalization.CultureInfo.InvariantCulture).ToString("d");
+                                        checkdate = false;
+                                    }
+                                    catch (Exception)
+                                    {
+
+                                    }
                                 }
                             }
                         }
 
                         if (checkorder)
                         {
-                            if (!look_under)
-                            {
+                            //if (!look_under)
+                            //{
                                 string word = Process.Next_word_after_keyword(line, commandNumber);
                                 // Console.WriteLine(word);
                                 if (!string.IsNullOrWhiteSpace(word))
@@ -240,7 +255,7 @@ namespace InvoiceAnalyserMainUI
                                     info["commande"] = word;
                                     checkorder = false;
                                 } 
-                            }
+                            //}
                             if (look_under) //next lines
                             {
                                 //first words
@@ -248,7 +263,7 @@ namespace InvoiceAnalyserMainUI
                                 if (firs_word.Any(char.IsDigit))
                                 {
                                     info["commande"] = firs_word;
-                                    checkorder = false;
+                                    look_under = false;
                                 }
                                 
                             }
@@ -267,10 +282,11 @@ namespace InvoiceAnalyserMainUI
                                 if (w.StartsWith("0") && w.Contains(">") && w.EndsWith(">"))
                                 {
                                     info["BVR"] = w;
-                                    check = false;
+                                    check = false;                                 
+
 
                                     // get invoice toal from the BVR number
-                                    if(w.IndexOf('>') != w.LastIndexOf('>'))
+                                    if (w.IndexOf('>') != w.LastIndexOf('>'))
                                     {
                                         string total = w.Replace(" ","").Substring(2, w.IndexOf('>') - 2);
                                         info["prix_total"] = total.Insert(total.Length - 3, ".");
@@ -280,16 +296,18 @@ namespace InvoiceAnalyserMainUI
                             }
                         }
                         //header section
-                        if (!hfound && Process.isheaader(line, headerKeyword))
+                        if ( !hfound && Process.isheaader(line, headerKeyword))
                         {
                             hfound = true;
                             Console.WriteLine("<table header> \n" + line);
                             continue;
                         }
                         // footer section
-                        if (!ffound && Process.isfooter(line, fotterKeyword))
+                        if (hfound && !ffound && Process.isfooter(line, fotterKeyword))
                         {
                             ffound = true;
+                            // no date found until footer, so filter dates                            
+
                             Console.WriteLine("<table end found> \n" + line);
                             Console.WriteLine("Itemline fotter - {0}", line_p);
                             if (!string.IsNullOrEmpty(name))
@@ -321,7 +339,7 @@ namespace InvoiceAnalyserMainUI
                                         terms = line_p.Split('\t');
                                         if (terms[ipos - 1].Trim().IndexOf(" ") != -1)
                                             terms[ipos - 1] = terms[ipos - 1].Insert(terms[ipos - 1].Trim().IndexOf(" "), " \t");
-                                        Console.WriteLine("Positions", terms[ipos - 1]);
+                                        Console.WriteLine("Positions {0}", terms[ipos - 1]);
                                         line_p = string.Join("\t", terms);
                                     }
                                     line_p = string.Join("\t", terms);
@@ -383,14 +401,17 @@ namespace InvoiceAnalyserMainUI
                                         double price = 0;
                                         if (!double.TryParse(price_ht, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
                                         {
-                                            for (int i = 1; i < items.Length; i++)
+                                            for (int i = items.Length-2; i > 1 ; i--)
                                             {
                                                 if ((i != designationColumn - 1 || i != quantityColumn - 1 || i != itemNumberColumn - 1) &&
                                                     double.TryParse(items[i], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
                                                 {
-                                                    if (result > price)
+                                                    if (result > price && result.ToString().Length >2)
                                                     {
                                                         price_ht = items[i];
+                                                        if(!price_ht.Contains("."))
+                                                        price_ht = price_ht.Insert(price_ht.Length - 2, ".");
+                                                        
                                                     }
                                                 }
                                             }
@@ -546,7 +567,7 @@ namespace InvoiceAnalyserMainUI
                                     if (double.TryParse(total, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
                                     {
                                         p = false;
-                                        if (!total.Contains('.') | total.Contains(','))
+                                        if ((!total.Contains('.') | total.Contains(',')) && total.Length > 2 )
                                             total = total.Insert(total.Length - 2, ".");
                                         info["prix"] = total;
                                     }

@@ -209,8 +209,8 @@ namespace InvoiceAnalyserMainUI
             {
                 processButton.Visible = true;
             }
-            this.homePanel.Visible = false;
-            this.dynaPdfListPanel.Visible = false;
+            homePanel.Visible = false;
+            dynaPdfListPanel.Visible = false;
         }
 
         private void headerPanel_MouseMove(object sender, MouseEventArgs e)
@@ -504,8 +504,24 @@ namespace InvoiceAnalyserMainUI
         }
 
         private void Print_To_Screen(Dictionary<string,string> info)
-        {           
-            factureDate_label.Text = info["factureDate"];
+        {
+
+            if (!string.IsNullOrWhiteSpace(info["factureDate"].Trim()))
+            {
+                factureDate_label.Text = info["factureDate"];
+            }
+            else
+            {
+                try
+                {
+                    factureDate_label.Text = info["Idate"];
+                }
+                catch (Exception)
+                {
+
+                }
+            }
+           
             commande_Label.Text = Regex.Replace(info["commande"], "[^a-zA-Z0-9._/]", " ").Trim();
             try
             {
@@ -590,6 +606,7 @@ namespace InvoiceAnalyserMainUI
             circleProgressbar.Value = 1;
 
             // _files contains all the files.
+            _files.Clear();
             foreach (string filePath in DropBox.Items)
             {
                 if (!_files.Contains(filePath))
@@ -687,12 +704,14 @@ namespace InvoiceAnalyserMainUI
         {
             if (e.KeyCode == Keys.Delete && DropBox.SelectedIndex >= 0)
             {
-                //_files.RemoveAt(DropBox.SelectedIndex);
-                foreach(var item in DropBox.SelectedItems)
+                //_files.RemoveAt(DropBox.SelectedIndex
+                var selectedItems = DropBox.SelectedItems;
+                for (int i = selectedItems.Count - 1; i >= 0; i--)
                 {
-                    DropBox.Items.Remove(item);
+                    DropBox.Items.Remove(selectedItems[i]);
+
                 }
-                
+
             }
         }
     }
