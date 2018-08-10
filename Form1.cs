@@ -24,7 +24,7 @@ namespace InvoiceAnalyserMainUI
         private List<int> pos = new List<int>();
         private List<Listbutton> dynaPdfBtns = new List<Listbutton>();
         private Regex regex = new Regex(@"[ ]{2,}", RegexOptions.None);
-        private Regex return_regex = new Regex("[\r\n]{2,}", RegexOptions.None);
+        private Regex alphaNum_regex = new Regex(@"[^a-zA-Z0-9._/\\]", RegexOptions.None);
         //private string tv;
         private ObservableCollection<string> _files = new ObservableCollection<string>();
         
@@ -370,6 +370,15 @@ namespace InvoiceAnalyserMainUI
         private void itemCount_Textbox_Validated(object sender, EventArgs e)
         {
             errorProvider1.SetError(itemCountTextbox, "");
+            if(itemCountTextbox.Text == "0")
+            {
+                designationTextbox.Text = "-1";
+                designationTextbox.Enabled = false;
+                quantityTextbox.Text = "-1";
+                quantityTextbox.Enabled = false;
+                itemNumberTextbox.Text = "-1";
+                itemNumberTextbox.Enabled = false;
+            }
         }
 
         private void quantityTextbox_Validated(object sender, EventArgs e)
@@ -380,6 +389,7 @@ namespace InvoiceAnalyserMainUI
         private void item_numberTextbox_Validated(object sender, EventArgs e)
         {
             errorProvider1.SetError(itemNumberTextbox, "");
+
         }
 
         private void saveButton_Click(object sender, EventArgs e)
@@ -506,26 +516,19 @@ namespace InvoiceAnalyserMainUI
         private void Print_To_Screen(Dictionary<string,string> info)
         {
 
-            if (!string.IsNullOrWhiteSpace(info["factureDate"].Trim()))
+            if (!string.IsNullOrWhiteSpace(info["factureDate"]))
             {
-                factureDate_label.Text = info["factureDate"];
+                factureDate_label.Text = alphaNum_regex.Replace(info["factureDate"]," ").Trim();
             }
             else
             {
-                try
-                {
-                    factureDate_label.Text = info["Idate"];
-                }
-                catch (Exception)
-                {
-
-                }
+                    factureDate_label.Text = alphaNum_regex.Replace(info["Idate"], " ").Trim();               
             }
            
-            commande_Label.Text = Regex.Replace(info["commande"], "[^a-zA-Z0-9._/]", " ").Trim();
+            commande_Label.Text = alphaNum_regex.Replace(info["commande"],  " ").Trim();
             try
             {
-               
+               //put prix inot 2 decimal places without rounding
                 prix_label.Text = string.Format("{0:0.00}", Math.Truncate(double.Parse(info["prix_total"]) * 20) / 20);
             }
             catch (Exception)
@@ -601,7 +604,7 @@ namespace InvoiceAnalyserMainUI
         {
             i = 0;
             animatepanel.Visible = true;
-            labelf.Text = "Processing PDF ...";
+            labelf.Text = "Processing PDFs ...";
             Thread.Sleep(1);
             circleProgressbar.Value = 1;
 
@@ -612,13 +615,10 @@ namespace InvoiceAnalyserMainUI
                 if (!_files.Contains(filePath))
                     _files.Add(filePath);
                 
-            }
-            // call pdf to convert each file async
-            // Thread th = new Thread(work);
-            // th.Start();
+            }            
 
             await WorkAsync();
-            this.circleProgressbar.Value = 100;
+            circleProgressbar.Value = 100;
             Thread.Sleep(1200);
             animatepanel.Visible = false;
             homePanel.Visible = false;
@@ -633,7 +633,7 @@ namespace InvoiceAnalyserMainUI
                 newLoc.Offset(0, b.Height + 2);
                 b.Click += new EventHandler(DynaDataExtract);
                 
-                this.dynaPdfListPanel.Controls.Add(b);
+                dynaPdfListPanel.Controls.Add(b);
                 
                 //dynaPdfBtns.Add(b);
                 b.Location = newLoc;

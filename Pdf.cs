@@ -36,6 +36,7 @@ namespace InvoiceAnalyserMainUI
 
             info = new Dictionary<string, string>();
             info["factureDate"] = "";
+            info["Idate"] = "";
             info["commande"] = "";
             info["BVR"] = "------------";
             info["prix"] = "0.00";
@@ -197,6 +198,7 @@ namespace InvoiceAnalyserMainUI
                 bool p = false;
                 
                 StringBuilder infoItem = new StringBuilder();
+                bool general_Date = true;
 
                 foreach (string line in content)
                 {
@@ -221,41 +223,49 @@ namespace InvoiceAnalyserMainUI
                                     info["factureDate"] = sub.Split('\t').Where(term => term.Trim().Length > 4).ToList()[0];
                                     checkdate = false;
                                 }
-                                foreach (string words in line.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries))
+
+                                if (general_Date)
                                 {
-                                    try
+                                    foreach (string words in line.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries).Where(i => i.Trim().Length > 6))
                                     {
+                                        try
+                                        {
 
-                                        info["Idate"] = DateTime.Parse(words.Trim(), System.Globalization.CultureInfo.InvariantCulture).ToString("d");
-                                        checkdate = false;
-                                    }
-                                    catch (Exception)
-                                    {
+                                            info["Idate"] = DateTime.Parse(words.Trim(), System.Globalization.CultureInfo.InvariantCulture).ToString("d");
+                                            general_Date = false;
+                                        }
+                                        catch (Exception)
+                                        {
 
-                                    }
+                                        }
+                                    } 
                                 }
                             }
                         }
 
                         if (checkorder)
-                        {
-                            //if (!look_under)
-                            //{
-                                string word = Process.Next_word_after_keyword(line, commandNumber);
-                                // Console.WriteLine(word);
-                                if (!string.IsNullOrWhiteSpace(word))
+                        {                           
+                            string word = Process.Next_word_after_keyword(line, commandNumber);
+                            if (line.ToLowerInvariant().Contains(commandNumber.ToLowerInvariant()))
+                            {
+                                string sub = regex.Replace((line.Substring(line.ToLowerInvariant().IndexOf(commandNumber.ToLowerInvariant()) + commandNumber.Length).Trim()), "\t");
+                                info["commande"] = sub.Split('\t').Where(term => term.Trim().Length > 4).ToList()[0];
+                            }
+
+                            else if (!string.IsNullOrWhiteSpace(word))
+                            {
+                                if (!word.Any(char.IsDigit))
                                 {
-                                    if (!word.Any(char.IsDigit))
-                                    {
-                                        look_under = true;
-                                        continue;
 
-                                    }
+                                    look_under = true;
+                                    continue;
+                                }
 
-                                    info["commande"] = word;
-                                    checkorder = false;
-                                } 
-                            //}
+                                info["commande"] = word;
+                                checkorder = false;
+                            }
+                               
+                           
                             if (look_under) //next lines
                             {
                                 //first words

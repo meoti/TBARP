@@ -29,13 +29,13 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            BunifuAnimatorNS.Animation animation97 = new BunifuAnimatorNS.Animation();
+            BunifuAnimatorNS.Animation animation9 = new BunifuAnimatorNS.Animation();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle49 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle50 = new System.Windows.Forms.DataGridViewCellStyle();
-            BunifuAnimatorNS.Animation animation98 = new BunifuAnimatorNS.Animation();
-            BunifuAnimatorNS.Animation animation100 = new BunifuAnimatorNS.Animation();
-            BunifuAnimatorNS.Animation animation99 = new BunifuAnimatorNS.Animation();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            BunifuAnimatorNS.Animation animation12 = new BunifuAnimatorNS.Animation();
+            BunifuAnimatorNS.Animation animation10 = new BunifuAnimatorNS.Animation();
+            BunifuAnimatorNS.Animation animation11 = new BunifuAnimatorNS.Animation();
             this.logoTransition = new BunifuAnimatorNS.BunifuTransition(this.components);
             this.titlePanel = new System.Windows.Forms.Panel();
             this.closeButton = new Bunifu.Framework.UI.BunifuImageButton();
@@ -103,8 +103,8 @@
             this.labelf = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.executeButton = new Bunifu.Framework.UI.BunifuThinButton2();
-            this.borderpanel = new System.Windows.Forms.Panel();
             this.DropBox = new System.Windows.Forms.ListBox();
+            this.borderpanel = new System.Windows.Forms.Panel();
             this.sideMenu = new System.Windows.Forms.Panel();
             this.homeButton = new Bunifu.Framework.UI.BunifuFlatButton();
             this.bunifuFlatButton3 = new Bunifu.Framework.UI.BunifuFlatButton();
@@ -137,22 +137,22 @@
             // 
             this.logoTransition.AnimationType = BunifuAnimatorNS.AnimationType.HorizBlind;
             this.logoTransition.Cursor = null;
-            animation97.AnimateOnlyDifferences = true;
-            animation97.BlindCoeff = ((System.Drawing.PointF)(resources.GetObject("animation97.BlindCoeff")));
-            animation97.LeafCoeff = 0F;
-            animation97.MaxTime = 1F;
-            animation97.MinTime = 0F;
-            animation97.MosaicCoeff = ((System.Drawing.PointF)(resources.GetObject("animation97.MosaicCoeff")));
-            animation97.MosaicShift = ((System.Drawing.PointF)(resources.GetObject("animation97.MosaicShift")));
-            animation97.MosaicSize = 0;
-            animation97.Padding = new System.Windows.Forms.Padding(0);
-            animation97.RotateCoeff = 0F;
-            animation97.RotateLimit = 0F;
-            animation97.ScaleCoeff = ((System.Drawing.PointF)(resources.GetObject("animation97.ScaleCoeff")));
-            animation97.SlideCoeff = ((System.Drawing.PointF)(resources.GetObject("animation97.SlideCoeff")));
-            animation97.TimeCoeff = 0F;
-            animation97.TransparencyCoeff = 0F;
-            this.logoTransition.DefaultAnimation = animation97;
+            animation9.AnimateOnlyDifferences = true;
+            animation9.BlindCoeff = ((System.Drawing.PointF)(resources.GetObject("animation9.BlindCoeff")));
+            animation9.LeafCoeff = 0F;
+            animation9.MaxTime = 1F;
+            animation9.MinTime = 0F;
+            animation9.MosaicCoeff = ((System.Drawing.PointF)(resources.GetObject("animation9.MosaicCoeff")));
+            animation9.MosaicShift = ((System.Drawing.PointF)(resources.GetObject("animation9.MosaicShift")));
+            animation9.MosaicSize = 0;
+            animation9.Padding = new System.Windows.Forms.Padding(0);
+            animation9.RotateCoeff = 0F;
+            animation9.RotateLimit = 0F;
+            animation9.ScaleCoeff = ((System.Drawing.PointF)(resources.GetObject("animation9.ScaleCoeff")));
+            animation9.SlideCoeff = ((System.Drawing.PointF)(resources.GetObject("animation9.SlideCoeff")));
+            animation9.TimeCoeff = 0F;
+            animation9.TransparencyCoeff = 0F;
+            this.logoTransition.DefaultAnimation = animation9;
             this.logoTransition.MaxAnimationTime = 1400;
             // 
             // titlePanel
@@ -257,6 +257,7 @@
             // dynaPdfListPanel
             // 
             this.dynaPdfListPanel.AutoScroll = true;
+            this.dynaPdfListPanel.AutoSize = true;
             this.dynaPdfListPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(25)))), ((int)(((byte)(36)))));
             this.panelTransition1.SetDecoration(this.dynaPdfListPanel, BunifuAnimatorNS.DecorationType.None);
             this.homeTransition.SetDecoration(this.dynaPdfListPanel, BunifuAnimatorNS.DecorationType.None);
@@ -957,22 +958,22 @@
             // 
             // bunifuCustomDataGrid2
             // 
-            dataGridViewCellStyle49.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.bunifuCustomDataGrid2.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle49;
+            dataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
+            this.bunifuCustomDataGrid2.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle5;
             this.bunifuCustomDataGrid2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.bunifuCustomDataGrid2.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.bunifuCustomDataGrid2.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(46)))), ((int)(((byte)(59)))));
             this.bunifuCustomDataGrid2.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.bunifuCustomDataGrid2.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
-            dataGridViewCellStyle50.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle50.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(36)))), ((int)(((byte)(48)))), ((int)(((byte)(65)))));
-            dataGridViewCellStyle50.Font = new System.Drawing.Font("Century Gothic", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle50.ForeColor = System.Drawing.Color.SeaGreen;
-            dataGridViewCellStyle50.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle50.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle50.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.bunifuCustomDataGrid2.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle50;
+            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(36)))), ((int)(((byte)(48)))), ((int)(((byte)(65)))));
+            dataGridViewCellStyle6.Font = new System.Drawing.Font("Century Gothic", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle6.ForeColor = System.Drawing.Color.SeaGreen;
+            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.bunifuCustomDataGrid2.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle6;
             this.bunifuCustomDataGrid2.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.bunifuCustomDataGrid2.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.name,
@@ -1417,21 +1418,6 @@
             this.executeButton.Visible = false;
             this.executeButton.Click += new System.EventHandler(this.ExecuteButton_ClickAsync);
             // 
-            // borderpanel
-            // 
-            this.borderpanel.AutoSize = true;
-            this.borderpanel.BackColor = System.Drawing.Color.Transparent;
-            this.panelTransition1.SetDecoration(this.borderpanel, BunifuAnimatorNS.DecorationType.None);
-            this.homeTransition.SetDecoration(this.borderpanel, BunifuAnimatorNS.DecorationType.None);
-            this.logoTransition.SetDecoration(this.borderpanel, BunifuAnimatorNS.DecorationType.None);
-            this.panelTransition.SetDecoration(this.borderpanel, BunifuAnimatorNS.DecorationType.None);
-            this.borderpanel.ForeColor = System.Drawing.Color.SeaGreen;
-            this.borderpanel.Location = new System.Drawing.Point(59, 107);
-            this.borderpanel.Margin = new System.Windows.Forms.Padding(0);
-            this.borderpanel.Name = "borderpanel";
-            this.borderpanel.Size = new System.Drawing.Size(1363, 660);
-            this.borderpanel.TabIndex = 1;
-            // 
             // DropBox
             // 
             this.DropBox.AllowDrop = true;
@@ -1456,6 +1442,21 @@
             this.DropBox.DragLeave += new System.EventHandler(this.DropBox_DragLeave);
             this.DropBox.MouseLeave += new System.EventHandler(this.DropBox_MouseLeave);
             this.DropBox.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.DropBox_PreviewKeyDown);
+            // 
+            // borderpanel
+            // 
+            this.borderpanel.AutoSize = true;
+            this.borderpanel.BackColor = System.Drawing.Color.Transparent;
+            this.panelTransition1.SetDecoration(this.borderpanel, BunifuAnimatorNS.DecorationType.None);
+            this.homeTransition.SetDecoration(this.borderpanel, BunifuAnimatorNS.DecorationType.None);
+            this.logoTransition.SetDecoration(this.borderpanel, BunifuAnimatorNS.DecorationType.None);
+            this.panelTransition.SetDecoration(this.borderpanel, BunifuAnimatorNS.DecorationType.None);
+            this.borderpanel.ForeColor = System.Drawing.Color.SeaGreen;
+            this.borderpanel.Location = new System.Drawing.Point(59, 107);
+            this.borderpanel.Margin = new System.Windows.Forms.Padding(0);
+            this.borderpanel.Name = "borderpanel";
+            this.borderpanel.Size = new System.Drawing.Size(1363, 660);
+            this.borderpanel.TabIndex = 1;
             // 
             // sideMenu
             // 
@@ -1684,65 +1685,65 @@
             // 
             this.panelTransition.AnimationType = BunifuAnimatorNS.AnimationType.Scale;
             this.panelTransition.Cursor = null;
-            animation98.AnimateOnlyDifferences = true;
-            animation98.BlindCoeff = ((System.Drawing.PointF)(resources.GetObject("animation98.BlindCoeff")));
-            animation98.LeafCoeff = 0F;
-            animation98.MaxTime = 1F;
-            animation98.MinTime = 0F;
-            animation98.MosaicCoeff = ((System.Drawing.PointF)(resources.GetObject("animation98.MosaicCoeff")));
-            animation98.MosaicShift = ((System.Drawing.PointF)(resources.GetObject("animation98.MosaicShift")));
-            animation98.MosaicSize = 0;
-            animation98.Padding = new System.Windows.Forms.Padding(0);
-            animation98.RotateCoeff = 0F;
-            animation98.RotateLimit = 0F;
-            animation98.ScaleCoeff = ((System.Drawing.PointF)(resources.GetObject("animation98.ScaleCoeff")));
-            animation98.SlideCoeff = ((System.Drawing.PointF)(resources.GetObject("animation98.SlideCoeff")));
-            animation98.TimeCoeff = 0F;
-            animation98.TransparencyCoeff = 0F;
-            this.panelTransition.DefaultAnimation = animation98;
+            animation12.AnimateOnlyDifferences = true;
+            animation12.BlindCoeff = ((System.Drawing.PointF)(resources.GetObject("animation12.BlindCoeff")));
+            animation12.LeafCoeff = 0F;
+            animation12.MaxTime = 1F;
+            animation12.MinTime = 0F;
+            animation12.MosaicCoeff = ((System.Drawing.PointF)(resources.GetObject("animation12.MosaicCoeff")));
+            animation12.MosaicShift = ((System.Drawing.PointF)(resources.GetObject("animation12.MosaicShift")));
+            animation12.MosaicSize = 0;
+            animation12.Padding = new System.Windows.Forms.Padding(0);
+            animation12.RotateCoeff = 0F;
+            animation12.RotateLimit = 0F;
+            animation12.ScaleCoeff = ((System.Drawing.PointF)(resources.GetObject("animation12.ScaleCoeff")));
+            animation12.SlideCoeff = ((System.Drawing.PointF)(resources.GetObject("animation12.SlideCoeff")));
+            animation12.TimeCoeff = 0F;
+            animation12.TransparencyCoeff = 0F;
+            this.panelTransition.DefaultAnimation = animation12;
             // 
             // panelTransition1
             // 
             this.panelTransition1.AnimationType = BunifuAnimatorNS.AnimationType.HorizSlide;
             this.panelTransition1.Cursor = null;
-            animation100.AnimateOnlyDifferences = true;
-            animation100.BlindCoeff = ((System.Drawing.PointF)(resources.GetObject("animation100.BlindCoeff")));
-            animation100.LeafCoeff = 0F;
-            animation100.MaxTime = 1F;
-            animation100.MinTime = 0F;
-            animation100.MosaicCoeff = ((System.Drawing.PointF)(resources.GetObject("animation100.MosaicCoeff")));
-            animation100.MosaicShift = ((System.Drawing.PointF)(resources.GetObject("animation100.MosaicShift")));
-            animation100.MosaicSize = 0;
-            animation100.Padding = new System.Windows.Forms.Padding(0);
-            animation100.RotateCoeff = 0F;
-            animation100.RotateLimit = 0F;
-            animation100.ScaleCoeff = ((System.Drawing.PointF)(resources.GetObject("animation100.ScaleCoeff")));
-            animation100.SlideCoeff = ((System.Drawing.PointF)(resources.GetObject("animation100.SlideCoeff")));
-            animation100.TimeCoeff = 0F;
-            animation100.TransparencyCoeff = 0F;
-            this.panelTransition1.DefaultAnimation = animation100;
+            animation10.AnimateOnlyDifferences = true;
+            animation10.BlindCoeff = ((System.Drawing.PointF)(resources.GetObject("animation10.BlindCoeff")));
+            animation10.LeafCoeff = 0F;
+            animation10.MaxTime = 1F;
+            animation10.MinTime = 0F;
+            animation10.MosaicCoeff = ((System.Drawing.PointF)(resources.GetObject("animation10.MosaicCoeff")));
+            animation10.MosaicShift = ((System.Drawing.PointF)(resources.GetObject("animation10.MosaicShift")));
+            animation10.MosaicSize = 0;
+            animation10.Padding = new System.Windows.Forms.Padding(0);
+            animation10.RotateCoeff = 0F;
+            animation10.RotateLimit = 0F;
+            animation10.ScaleCoeff = ((System.Drawing.PointF)(resources.GetObject("animation10.ScaleCoeff")));
+            animation10.SlideCoeff = ((System.Drawing.PointF)(resources.GetObject("animation10.SlideCoeff")));
+            animation10.TimeCoeff = 0F;
+            animation10.TransparencyCoeff = 0F;
+            this.panelTransition1.DefaultAnimation = animation10;
             this.panelTransition1.MaxAnimationTime = 700;
             // 
             // homeTransition
             // 
             this.homeTransition.AnimationType = BunifuAnimatorNS.AnimationType.HorizSlide;
             this.homeTransition.Cursor = null;
-            animation99.AnimateOnlyDifferences = true;
-            animation99.BlindCoeff = ((System.Drawing.PointF)(resources.GetObject("animation99.BlindCoeff")));
-            animation99.LeafCoeff = 0F;
-            animation99.MaxTime = 1F;
-            animation99.MinTime = 0F;
-            animation99.MosaicCoeff = ((System.Drawing.PointF)(resources.GetObject("animation99.MosaicCoeff")));
-            animation99.MosaicShift = ((System.Drawing.PointF)(resources.GetObject("animation99.MosaicShift")));
-            animation99.MosaicSize = 0;
-            animation99.Padding = new System.Windows.Forms.Padding(0);
-            animation99.RotateCoeff = 0F;
-            animation99.RotateLimit = 0F;
-            animation99.ScaleCoeff = ((System.Drawing.PointF)(resources.GetObject("animation99.ScaleCoeff")));
-            animation99.SlideCoeff = ((System.Drawing.PointF)(resources.GetObject("animation99.SlideCoeff")));
-            animation99.TimeCoeff = 0F;
-            animation99.TransparencyCoeff = 0F;
-            this.homeTransition.DefaultAnimation = animation99;
+            animation11.AnimateOnlyDifferences = true;
+            animation11.BlindCoeff = ((System.Drawing.PointF)(resources.GetObject("animation11.BlindCoeff")));
+            animation11.LeafCoeff = 0F;
+            animation11.MaxTime = 1F;
+            animation11.MinTime = 0F;
+            animation11.MosaicCoeff = ((System.Drawing.PointF)(resources.GetObject("animation11.MosaicCoeff")));
+            animation11.MosaicShift = ((System.Drawing.PointF)(resources.GetObject("animation11.MosaicShift")));
+            animation11.MosaicSize = 0;
+            animation11.Padding = new System.Windows.Forms.Padding(0);
+            animation11.RotateCoeff = 0F;
+            animation11.RotateLimit = 0F;
+            animation11.ScaleCoeff = ((System.Drawing.PointF)(resources.GetObject("animation11.ScaleCoeff")));
+            animation11.SlideCoeff = ((System.Drawing.PointF)(resources.GetObject("animation11.SlideCoeff")));
+            animation11.TimeCoeff = 0F;
+            animation11.TransparencyCoeff = 0F;
+            this.homeTransition.DefaultAnimation = animation11;
             this.homeTransition.Interval = 1;
             this.homeTransition.MaxAnimationTime = 500;
             // 

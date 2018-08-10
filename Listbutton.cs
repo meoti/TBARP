@@ -38,7 +38,7 @@ namespace InvoiceAnalyserMainUI
             IconRightVisible = true;
             IconRightZoom = 40D;
             IconVisible = true;
-            IconZoom = 70D;
+            IconZoom = 60D;
            IsTab = true;
             //Location = new System.Drawing.Point(3, 48);
             Name = btnName;
