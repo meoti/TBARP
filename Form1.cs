@@ -316,6 +316,22 @@ namespace InvoiceAnalyserMainUI
         private void itemCount_Textbox_Validating(object sender, CancelEventArgs e)
         {
             IntegerValidate(itemCountTextbox, e);
+            if (itemCountTextbox.Text == "0")
+            {
+                designationTextbox.Text = "-1";
+                designationTextbox.Enabled = false;
+                quantityTextbox.Text = "-1";
+                quantityTextbox.Enabled = false;
+                itemNumberTextbox.Text = "-1";
+                itemNumberTextbox.Enabled = false;
+            }
+            else
+            {
+
+                designationTextbox.Enabled = true;
+                quantityTextbox.Enabled = true;
+                itemNumberTextbox.Enabled = true;
+            }
         }
 
         private void IntegerValidate(BunifuMetroTextbox Textbox, CancelEventArgs e)
@@ -370,15 +386,7 @@ namespace InvoiceAnalyserMainUI
         private void itemCount_Textbox_Validated(object sender, EventArgs e)
         {
             errorProvider1.SetError(itemCountTextbox, "");
-            if(itemCountTextbox.Text == "0")
-            {
-                designationTextbox.Text = "-1";
-                designationTextbox.Enabled = false;
-                quantityTextbox.Text = "-1";
-                quantityTextbox.Enabled = false;
-                itemNumberTextbox.Text = "-1";
-                itemNumberTextbox.Enabled = false;
-            }
+            
         }
 
         private void quantityTextbox_Validated(object sender, EventArgs e)
@@ -524,8 +532,16 @@ namespace InvoiceAnalyserMainUI
             {
                     factureDate_label.Text = alphaNum_regex.Replace(info["Idate"], " ").Trim();               
             }
-           
-            commande_Label.Text = alphaNum_regex.Replace(info["commande"],  " ").Trim();
+
+            if (!string.IsNullOrWhiteSpace(info["commande"]))
+            {
+                commande_Label.Text = alphaNum_regex.Replace(info["commande"], " ").Trim();
+            }
+            else
+            {
+                commande_Label.Text = alphaNum_regex.Replace(info["Icommande"], " ").Trim();
+            }
+            
             try
             {
                //put prix inot 2 decimal places without rounding

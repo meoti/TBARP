@@ -37,6 +37,7 @@ namespace InvoiceAnalyserMainUI
             info = new Dictionary<string, string>();
             info["factureDate"] = "";
             info["Idate"] = "";
+            info["Icommande"] = "";
             info["commande"] = "";
             info["BVR"] = "------------";
             info["prix"] = "0.00";
@@ -64,6 +65,8 @@ namespace InvoiceAnalyserMainUI
 
             info = new Dictionary<string, string>();
             info["factureDate"] = "";
+            info["Idate"] = "";
+            info["Icommande"] = "";
             info["commande"] = "";
             info["BVR"] = "------------";
             info["prix"] = "0.00";
@@ -199,6 +202,7 @@ namespace InvoiceAnalyserMainUI
                 
                 StringBuilder infoItem = new StringBuilder();
                 bool general_Date = true;
+                DateTime Idate = new DateTime();
 
                 foreach (string line in content)
                 {
@@ -228,17 +232,13 @@ namespace InvoiceAnalyserMainUI
                                 {
                                     foreach (string words in line.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries).Where(i => i.Trim().Length > 6))
                                     {
-                                        try
-                                        {
 
-                                            info["Idate"] = DateTime.Parse(words.Trim(), System.Globalization.CultureInfo.InvariantCulture).ToString("d");
+                                        if(DateTime.TryParse(words.Trim(), out Idate))
+                                        {
+                                            info["Idate"] = words.Trim();
                                             general_Date = false;
                                         }
-                                        catch (Exception)
-                                        {
-
-                                        }
-                                    } 
+                                    }
                                 }
                             }
                         }
@@ -246,13 +246,17 @@ namespace InvoiceAnalyserMainUI
                         if (checkorder)
                         {                           
                             string word = Process.Next_word_after_keyword(line, commandNumber);
-                            if (line.ToLowerInvariant().Contains(commandNumber.ToLowerInvariant()))
+                            if (line.ToLowerInvariant().Contains(commandNumber.ToLowerInvariant()) && string.IsNullOrWhiteSpace(info["Icommande"]))
                             {
-                                string sub = regex.Replace((line.Substring(line.ToLowerInvariant().IndexOf(commandNumber.ToLowerInvariant()) + commandNumber.Length).Trim()), "\t");
-                                info["commande"] = sub.Split('\t').Where(term => term.Trim().Length > 4).ToList()[0];
+                                string sub = regex.Replace((line.Substring(line.ToLowerInvariant().IndexOf(commandNumber.ToLowerInvariant()) + commandNumber.Length)), "\t");
+                                if (!string.IsNullOrWhiteSpace(sub))
+                                {
+                                    info["Icommande"] = sub.Split('\t').Where(term => term.Trim().Length > 4).ToList()[0];
+                                }
+                                
                             }
 
-                            else if (!string.IsNullOrWhiteSpace(word))
+                            if (!string.IsNullOrWhiteSpace(word))
                             {
                                 if (!word.Any(char.IsDigit))
                                 {
