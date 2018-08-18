@@ -4,7 +4,6 @@ using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace InvoiceAnalyserMainUI
 {
@@ -17,7 +16,7 @@ namespace InvoiceAnalyserMainUI
         int quantityColumn;
         int itemNumberColumn;
         int itemCount;
-        string headerKeyword;
+        internal string headerKeyword;
         string fotterKeyword;
         string date;
         string commandNumber;
@@ -25,7 +24,9 @@ namespace InvoiceAnalyserMainUI
         bool perUnit;
         bool tvaInclu;
         private Regex regex = new Regex(@"[ ]{2,}", RegexOptions.None);
+        private Regex alphaNum_regex = new Regex(@"[^a-zA-Z0-9._/\\]", RegexOptions.None);
         internal bool provider_Exist;
+        
 
         public Dictionary<string, string> info { get; private set; }
 
@@ -195,7 +196,7 @@ namespace InvoiceAnalyserMainUI
                 string quantity = "";
                 string item_number = "";
                 string price_ht = " ";
-                double price_tv = 0;
+                decimal price_tv = 0;
                 string tv = "8";
                 bool look_under = false;
                 bool p = false;
@@ -338,7 +339,7 @@ namespace InvoiceAnalyserMainUI
                             //{
                             if (hfound && !ffound)
                             {
-                                line_p = line.Replace("  . ", " ");
+                                line_p = line.Replace("  . ", " ").Replace("*"," ");
                                 line_p = regex.Replace(line_p, "\t");
 
                                 // get positions from pos and adjute pos in line
@@ -347,7 +348,7 @@ namespace InvoiceAnalyserMainUI
                                 {
                                     Array.Sort(pos);
                                     //insert pos after pos number
-                                    string[] terms = line_p.Split('\t');
+                                    string[] terms = line_p.Split(new char[] { '\t' },StringSplitOptions.RemoveEmptyEntries);
                                     foreach (int ipos in pos)
                                     {
                                         terms = line_p.Split('\t');
@@ -410,15 +411,15 @@ namespace InvoiceAnalyserMainUI
                                             }
                                                 
                                         }
-                                        // logic for getting maximum double value in item line for price ht
-                                        double result;
-                                        double price = 0;
-                                        if (!double.TryParse(price_ht, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
+                                        // logic for getting maximum decimal value in item line for price ht
+                                        decimal result;
+                                        decimal price = 0;
+                                        if (!decimal.TryParse(price_ht, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
                                         {
                                             for (int i = items.Length-2; i > 1 ; i--)
                                             {
                                                 if ((i != designationColumn - 1 || i != quantityColumn - 1 || i != itemNumberColumn - 1) &&
-                                                    double.TryParse(items[i], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
+                                                    decimal.TryParse(items[i], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
                                                 {
                                                     if (result > price && result.ToString().Length >2)
                                                     {
@@ -431,22 +432,22 @@ namespace InvoiceAnalyserMainUI
                                             }
 
                                         }
-                                        // if last item is not double, so strip 
+                                        // if last item is not decimal, so strip 
 
                                         // get price(based on qunatity and rabais)
                                         if (perUnit)
                                         {
                                             int rab_col = itemCount - 2;
-                                            double rabais = 0;
+                                            decimal rabais = 0;
                                             if ((rab_col != designationColumn - 1 && rab_col != quantityColumn - 1) && rab_col != itemNumberColumn - 1)
                                             {
                                                 
                                                 try
                                                 {
-                                                    rabais = double.Parse(items[rab_col]);
-                                                    if (rabais != double.Parse(price_ht) && rabais < 100)
+                                                    rabais = decimal.Parse(items[rab_col]);
+                                                    if (rabais != decimal.Parse(price_ht) && rabais < 100)
                                                     {
-                                                        rabais = rabais / 100 * double.Parse(price_ht);
+                                                        rabais = rabais / 100 * decimal.Parse(price_ht);
                                                     }
                                                     else
                                                     {
@@ -461,7 +462,7 @@ namespace InvoiceAnalyserMainUI
                                                 try
                                                 {
                                                     Console.WriteLine("discount = ",rabais);
-                                                    double prix = (double.Parse(price_ht) - rabais) * int.Parse(quantity);
+                                                    decimal prix = (decimal.Parse(price_ht) - rabais) * int.Parse(quantity);
 
                                                     prix = Math.Round(prix * 20) / 20;
 
@@ -474,17 +475,19 @@ namespace InvoiceAnalyserMainUI
 
                                         }
                                         
-                                        double tva = double.Parse(tv) / 100 * double.Parse(price_ht);
+                                        decimal tva = decimal.Parse(tv) / 100 * decimal.Parse(price_ht);
                                         tva = Math.Round(tva * 20) / 20;
-                                        //get price with tax or without
+                                        //get price with tax 
                                         if (tvaInclu)
                                         {
-                                            price_tv = double.Parse(price_ht);
-                                            price_ht = string.Format("{0:0.00}", double.Parse(price_ht) - tva);
+                                            price_tv = Math.Truncate(decimal.Parse(price_ht) * 20) / 20; 
+
+                                            price_ht = string.Format("{0:0.00}", decimal.Parse(price_ht) - tva);
                                         }
                                         else
                                         {
-                                            price_tv = double.Parse(price_ht) + tva;
+                                            price_tv = decimal.Parse(price_ht)  + tva;
+                                            price_tv = Math.Truncate(price_tv * 20) / 20;
                                         }
                                     }
                                     catch (Exception)
@@ -551,7 +554,7 @@ namespace InvoiceAnalyserMainUI
                         // if fotter found then look for total prix, default look for last item in line with toal chf
                         if (ffound)
                         {
-                            double result;
+                            decimal result;
                             //line having TVA
                             if (line.Contains("TVA"))
                             {
@@ -570,7 +573,7 @@ namespace InvoiceAnalyserMainUI
                             {
                                 string total = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Last();
                                 total = total.Replace("-", string.Empty).Replace("_", string.Empty).Replace("—", string.Empty).Replace("'", string.Empty);
-                                if (!double.TryParse(total, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
+                                if (!decimal.TryParse(total, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
                                 {
                                     p = true;// total is not on the line, maybe after
                                     continue;
@@ -578,7 +581,7 @@ namespace InvoiceAnalyserMainUI
                                 else
                                 {
                                     total = total.Replace("-", string.Empty).Replace("_", string.Empty).Replace("—", string.Empty).Replace("'", string.Empty);
-                                    if (double.TryParse(total, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
+                                    if (decimal.TryParse(total, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
                                     {
                                         p = false;
                                         if ((!total.Contains('.') | total.Contains(',')) && total.Length > 2 )
@@ -595,7 +598,7 @@ namespace InvoiceAnalyserMainUI
                                     string total = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Last();
                                     //Console.WriteLine(total);
                                     total = total.Replace("-", string.Empty).Replace("_", string.Empty).Replace("—", string.Empty).Replace("'", string.Empty);
-                                    if (double.TryParse(total, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
+                                    if (decimal.TryParse(total, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out result))
                                     {
                                         p = false;
                                         try
@@ -622,6 +625,7 @@ namespace InvoiceAnalyserMainUI
             else
             {
                 Console.WriteLine("Provider not determined");
+                System.Windows.Forms.Application.UseWaitCursor = false;
             }
         }
         // for each invoice present to the UI.

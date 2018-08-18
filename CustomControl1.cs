@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace banifu_forms_main_ui
+namespace InvoiceAnalyserMainUI
 {
     public partial class CustomControl1 : Bunifu.Framework.UI.BunifuFlatButton
     {

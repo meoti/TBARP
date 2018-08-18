@@ -11,18 +11,18 @@ using Bunifu.Framework.UI;
 using System.Configuration;
 using System.Collections.ObjectModel;
 using System.Threading;
-using System.Diagnostics;
+using InvoiceAnalyserMainUI.Properties;
 
 namespace InvoiceAnalyserMainUI
 {
-    public partial class Form1 : Form
+    public partial class InvoiceAnalyser_Form : Form
     {
         public const int WM_NCLBUTTONDOWN = 0xA1;
         public const int HT_CAPTION = 0x2;
 
         private string[] contents;
         private List<int> pos = new List<int>();
-        private List<Listbutton> dynaPdfBtns = new List<Listbutton>();
+        //private List<Listbutton> dynaPdfBtns = new List<Listbutton>();
         private Regex regex = new Regex(@"[ ]{2,}", RegexOptions.None);
         private Regex alphaNum_regex = new Regex(@"[^a-zA-Z0-9._/\\]", RegexOptions.None);
         //private string tv;
@@ -38,7 +38,7 @@ namespace InvoiceAnalyserMainUI
         public static extern bool ReleaseCapture();
 
 
-        public Form1()
+        public InvoiceAnalyser_Form()
         {
             InitializeComponent();
 
@@ -140,7 +140,7 @@ namespace InvoiceAnalyserMainUI
 
             var info = pdf.info;
             //put info in UI
-            Print_To_Screen(info);
+            Print_To_Screen(info, pdf.headerKeyword);
 
         }
         private async void loadBtn_Click(object sender, EventArgs e)
@@ -178,6 +178,7 @@ namespace InvoiceAnalyserMainUI
                 content_Box.Visible = true;
                 close_Button.Visible = true;
                 processButton.Visible = true;
+                saveButton.Visible = true;
                 //load_Button.Enabled = true;
             }
         }
@@ -201,16 +202,20 @@ namespace InvoiceAnalyserMainUI
 
         private void templateFlatButton_Click(object sender, EventArgs e)
         {
-            if (sideMenu.Width > 38)
-            {
-                Minimize();
-            }
+            //if (sideMenu.Width > 38)
+            //{
+            //    Minimize();
+            //}
             if(dynaPdfListPanel.Controls.Count > 0)
             {
                 processButton.Visible = true;
+                saveButton.Visible = true;
             }
+            
+            settingPanel.Visible = true;
             homePanel.Visible = false;
             dynaPdfListPanel.Visible = false;
+           
         }
 
         private void headerPanel_MouseMove(object sender, MouseEventArgs e)
@@ -225,7 +230,7 @@ namespace InvoiceAnalyserMainUI
 
         private void panel4_Click(object sender, EventArgs e)
         {
-            this.ActiveControl = titlePanel;
+            ActiveControl = titlePanel;
         }
 
         private void content_Box_KeyPress(object sender, KeyPressEventArgs e)
@@ -237,7 +242,6 @@ namespace InvoiceAnalyserMainUI
 
         private void content_Box_TextChanged(object sender, EventArgs e)
         {
-            //.WriteLine(e.GetType());
             if (!dynaPdfListPanel.Visible )           
             {
 
@@ -276,16 +280,12 @@ namespace InvoiceAnalyserMainUI
                         pos.Add(pos_new);
                     }
                 }
-            }
-            //else if(true)
-            //{
-            //    processButton.Visible = true;
-            //}
+            }           
         }
 
         private void panel5_MouseClick(object sender, MouseEventArgs e)
         {
-            this.ActiveControl = label22;
+            ActiveControl = label22;
         }
 
         private void header_nameTextbox_OnValueChanged(object sender, EventArgs e)
@@ -295,21 +295,21 @@ namespace InvoiceAnalyserMainUI
             //if the value is special word for no item, disable stuff.  108, 105, 100
             if (header_nameTextbox.Text.Equals("None", StringComparison.OrdinalIgnoreCase))
             {
-                designationTextbox.Enabled = false;
-                quantityTextbox.Enabled = false;
-                itemNumberTextbox.Enabled = false;
-                itemCountTextbox.Enabled = false;
-                per_unitSwitch.Enabled = false;
-                tvaSwitch.Enabled = false;
+                designationTextbox.Visible = false;
+                quantityTextbox.Visible = false;
+                itemNumberTextbox.Visible = false;
+                itemCountTextbox.Visible = false;
+                per_unitSwitch.Visible = false;
+                tvaSwitch.Visible = false;
             }
             else
             {
-                designationTextbox.Enabled = true;
-                quantityTextbox.Enabled = true;
-                itemNumberTextbox.Enabled = true;
-                itemCountTextbox.Enabled = true;
-                per_unitSwitch.Enabled = true;
-                tvaSwitch.Enabled = true;
+                designationTextbox.Visible = true;
+                quantityTextbox.Visible = true;
+                itemNumberTextbox.Visible = true;
+                itemCountTextbox.Visible = true;
+                per_unitSwitch.Visible = true;
+                tvaSwitch.Visible = true;
             }
         }
 
@@ -344,7 +344,7 @@ namespace InvoiceAnalyserMainUI
                 Textbox.Select();
 
                 // Set the ErrorProvider error with the text to display. 
-                this.errorProvider1.SetError(Textbox, "Numeric only");
+                errorProvider1.SetError(Textbox, "Numeric only");
 
             }
         }
@@ -417,9 +417,10 @@ namespace InvoiceAnalyserMainUI
             if (!string.IsNullOrEmpty(providerTextbox.Text))
             {
                 AddUpdateAppSettings(providerTextbox.Text, pref);
+                MessageBox.Show("Done", "Save Provider Data", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             }
-            MessageBox.Show("Done","Save Provider Data", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            
         }
         static void AddUpdateAppSettings(string key, string value)
         {
@@ -470,6 +471,8 @@ namespace InvoiceAnalyserMainUI
             if (pdfData.Count > 0)
             {
                 processButton.Visible = false;
+                saveButton.Visible = false;
+                settingPanel.Visible = true;
                 dynaPdfListPanel.Visible = true;
                 homePanel.Visible = false;
             }
@@ -492,10 +495,8 @@ namespace InvoiceAnalyserMainUI
             }
 
             button.selected = true;
-            button.Iconimage_right = global::banifu_forms_main_ui.Properties.Resources.selected;           
+            button.Iconimage_right = Resources.selected;           
             bunifuCustomDataGrid2.Rows.Clear();
-
-
             // get contents and process            
             string txt = pdfData[button.Name];
 
@@ -516,12 +517,21 @@ namespace InvoiceAnalyserMainUI
             providerTextbox.Text = provider.ToUpper();
             pdf.ProcessContent(contents);
 
-            var info = pdf.info;
+            //var info = pdf.info;
             //put info in UI
-            Print_To_Screen(info);
+            var check = Print_To_Screen(pdf.info, pdf.headerKeyword);
+            if (check )
+            {
+                button.Iconimage = Properties.Resources.tick;
+            }
+            else
+            {
+                button.Iconimage = Properties.Resources.exclamation;
+            }
+           
         }
 
-        private void Print_To_Screen(Dictionary<string,string> info)
+        private bool Print_To_Screen(Dictionary<string,string> info, string header)
         {
 
             if (!string.IsNullOrWhiteSpace(info["factureDate"]))
@@ -545,7 +555,7 @@ namespace InvoiceAnalyserMainUI
             try
             {
                //put prix inot 2 decimal places without rounding
-                prix_label.Text = string.Format("{0:0.00}", Math.Truncate(double.Parse(info["prix_total"]) * 20) / 20);
+                prix_label.Text = string.Format("{0:0.00}", Math.Truncate(decimal.Parse(info["prix_total"]) * 20) / 20);
             }
             catch (Exception)
             {
@@ -557,15 +567,49 @@ namespace InvoiceAnalyserMainUI
             {
                 string[] items = info["item"].Split(new string[] { Environment.NewLine, "\n" }, StringSplitOptions.RemoveEmptyEntries);
                 bunifuCustomDataGrid2.Rows.Clear();
+                decimal total = 0;
                 foreach (string item in items)
                 {
-                    bunifuCustomDataGrid2.Rows.Add(item.Split('|'));
+                    var row_items = item.Split('|');
+                    total += decimal.Parse(row_items[4]);
+                    bunifuCustomDataGrid2.Rows.Add(row_items);
                 }
 
+                if (!header.ToLower().Equals("none"))
+                {
+
+                    total = Math.Truncate(total * 20) / 20;
+                    var diff = Math.Truncate((decimal.Parse(prix_label.Text) - total) * 20) / 20;
+                    bunifuCustomDataGrid2.Rows.Add(new string[] { "", "", "", "Totals", (string.Format("{0:0.00}", total)), "", "" });
+                    bunifuCustomDataGrid2.Rows.Add(new string[] { "", "", "", "Diffs", (string.Format("{0:0.00}", diff)), "" });
+
+                    if (total > 0 && diff <= 1 && diff >= 0)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if(prix_label.Text.Equals("0.00"))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+
+                
+               
             }
             catch (Exception)
             {
-
+                return false;
             }
         }
 
@@ -586,12 +630,12 @@ namespace InvoiceAnalyserMainUI
 
         private void DropBox_DragLeave(object sender, EventArgs e)
         {
-            this.DropBox.BorderStyle = BorderStyle.FixedSingle;
+            DropBox.BorderStyle = BorderStyle.FixedSingle;
             borderpanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(102)))), ((int)(((byte)(204)))));
         }
         private void DropBox_MouseLeave(object sender, EventArgs e)
         {
-            this.DropBox.BorderStyle = BorderStyle.FixedSingle;
+            DropBox.BorderStyle = BorderStyle.FixedSingle;
             borderpanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(102)))), ((int)(((byte)(204)))));
             //borderpanel.BackColor = System.Drawing.Color.Transparent;
         }
@@ -624,12 +668,14 @@ namespace InvoiceAnalyserMainUI
             Thread.Sleep(1);
             circleProgressbar.Value = 1;
 
-            // _files contains all the files.
+            // _files contains all the files.           
             _files.Clear();
             foreach (string filePath in DropBox.Items)
             {
-                if (!_files.Contains(filePath))
+                if (!pdfData.Keys.Contains(System.IO.Path.GetFileNameWithoutExtension(filePath)))
+                {
                     _files.Add(filePath);
+                }                    
                 
             }            
 
@@ -640,24 +686,28 @@ namespace InvoiceAnalyserMainUI
             homePanel.Visible = false;
 
             // add dynamically the custom buttons
-            dynaPdfListPanel.Controls.Clear();
-            dynaPdfBtns.Clear();
-            System.Drawing.Point newLoc = new System.Drawing.Point(-2, 6);
-            foreach (string pdfname in pdfData.Keys)
+            //dynaPdfListPanel.Controls.Clear();
+            //dynaPdfBtns.Clear();
+            System.Drawing.Point newLoc = new System.Drawing.Point(-2, 3);
+            foreach (string pdfname in pdfData.Keys.Where(pdfname => !dynaPdfListPanel.Controls.ToString().Contains(pdfname)))
             {
                 var b = new Listbutton(pdfname, pdfname);
                 newLoc.Offset(0, b.Height + 2);
-                b.Click += new EventHandler(DynaDataExtract);
-                
+                b.Click += new EventHandler(DynaDataExtract);                
                 dynaPdfListPanel.Controls.Add(b);
                 
                 //dynaPdfBtns.Add(b);
                 b.Location = newLoc;
             }
             //dynaPdfListPanel.Visible = true;
+            //pdfFlatButton_Click(sender, e);
+            settingPanel.Visible = true;
             homeTransition.ShowSync(dynaPdfListPanel);
             pdfFlatButton.selected = true;
             homeButton.selected = false;
+            templateFlatButton.selected = false;
+            bunifuFlatButton1.selected = false;
+            bunifuFlatButton3.selected = false;
         }
 
         private Task WorkAsync()
@@ -709,7 +759,8 @@ namespace InvoiceAnalyserMainUI
             borderpanel.BackColor = System.Drawing.Color.Transparent;
             executeButton.Visible = false;
             DropBox.Items.Clear();
-            //_files.Clear();
+            //dynaPdfListPanel.Visible = false;
+            settingPanel.Visible = false;
             homeTransition.ShowSync(homePanel);
             Expand();
         }

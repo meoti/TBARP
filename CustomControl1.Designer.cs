@@ -1,4 +1,4 @@
-﻿namespace banifu_forms_main_ui
+﻿namespace InvoiceAnalyserMainUI
 {
     partial class CustomControl1
     {

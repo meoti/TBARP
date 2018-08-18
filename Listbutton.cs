@@ -24,10 +24,10 @@ namespace InvoiceAnalyserMainUI
             Font = new System.Drawing.Font("Comic Sans MS", 7.8F);
             ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(55)))), ((int)(((byte)(90)))), ((int)(((byte)(120)))));
             Iconcolor = System.Drawing.Color.Transparent;
-            Iconimage = global::banifu_forms_main_ui.Properties.Resources.pdf_file_3_32;
-            Iconimage_Selected = global::banifu_forms_main_ui.Properties.Resources.selected;
+            Iconimage = global::InvoiceAnalyserMainUI.Properties.Resources.pdf_file_3_32;
+            Iconimage_Selected = Properties.Resources.selected;
             
-            Iconimage_right_Selected = global::banifu_forms_main_ui.Properties.Resources.selected;
+            Iconimage_right_Selected = Properties.Resources.selected;
             
 
             Iconimage_right = null;
@@ -36,9 +36,9 @@ namespace InvoiceAnalyserMainUI
             IconMarginLeft = 0;
             IconMarginRight = 0;
             IconRightVisible = true;
-            IconRightZoom = 40D;
+            IconRightZoom = 30D;
             IconVisible = true;
-            IconZoom = 60D;
+            IconZoom = 40D;
            IsTab = true;
             //Location = new System.Drawing.Point(3, 48);
             Name = btnName;
