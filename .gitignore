@@ -1,6 +1,7 @@
 /bin/*
 ./Properties/*
 Properties/*
+Resources/*
 ./bin/*
 */bin/*
 */obj/*
