@@ -1,4 +1,6 @@
 /bin/*
+./Properties/*
+Properties/*
 ./bin/*
 */bin/*
 */obj/*
