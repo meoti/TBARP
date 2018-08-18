@@ -1,7 +1,9 @@
 bin
 obj
+debug
 x64
 x86
 *.resx
 *.csproj
+InvoiceAnalyserMainUI.csproj
 Form1.Designer.cs
