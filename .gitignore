@@ -1,8 +1,10 @@
-bin/*
+/bin/*
 ./bin/*
 */bin/*
-obj/
-debug/
+*/obj/*
+./obj/*
+obj/*
+*/debug/
 x64/*
 x86/*
 */x64/*
@@ -12,3 +14,6 @@ x86/*
 *.config
 InvoiceAnalyserMainUI.csproj
 Form1.Designer.cs
+Form1.resx
+Form1.cs
+Form1.csproj
